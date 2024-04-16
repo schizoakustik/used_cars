@@ -1,0 +1,10 @@
+# Method
+
+## Data collection
+How we collected the data and why we selected the parameters that we did. Did not collect price for new car.
+
+## Training and evaluating models
+* Mark, Model and Mark/Model?
+* Motor size does not make sense for electric cars. We need to decide whether to drop the column, or drop the electric cars. Start by looking at a model with the electric cars dropped to see if the motor size is significant for the remaining observations.
+
+### Parameter selection

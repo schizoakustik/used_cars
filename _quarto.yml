@@ -1,0 +1,33 @@
+project:
+  type: book
+
+book:
+  title: "Predicting used car prices with linear regression in R"
+  author: "Linus Rundberg Streuli"
+  date: "4/10/2024"
+  favicon: cover.png
+  chapters:
+    - index.qmd
+    - intro.qmd
+    - theory.qmd
+    - method.qmd
+    - results.qmd
+    - conclusions.qmd
+    - summary.qmd
+    - references.qmd
+
+bibliography: references.bib
+csl: apa.csl
+number-sections: true
+# bibliographystyle: apalike
+
+format:
+  html:
+    theme: cosmo
+  pdf:
+    documentclass: scrreprt
+    header-includes: |
+      \titlehead{\centering\includegraphics[width=6in]{cover.png}}
+
+
+

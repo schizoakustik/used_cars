@@ -1,0 +1,92 @@
+[
+  {
+    "objectID": "theory.html",
+    "href": "theory.html",
+    "title": "2  Theory",
+    "section": "",
+    "text": "2.1 Statistical learning\nIn short, statistical learning is the process of using statistical methods and mathematical models to understand data (James et al., 2023, p. 1). This process can be used to predict values given a set of variables, or to gain a better understanding of how those variables relate to the wanted value, also called inference. Often, the goal might be both prediction and inference.\nGiven that we wish to predict the response value \\(Y\\) from one or more variables, or predictors, \\(X\\), this can be expressed in a general form as Equation eq-rel.\n\\[ Y = f(X) + \\epsilon  \\tag{2.1}\\]\nHere, \\(f\\) is some kind of transformation made on \\(X\\) in order for it to help us estimate \\(Y\\), end \\(\\epsilon\\) is an error term which is unknown, and assumed to be normally distributed with a mean of 0. We need \\(\\epsilon\\) because our model will never be able to take into account for every little variable that might influence or prediction.\nOne of the simplest, yet most powerful, methods of statistical learning is linear regression.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Theory</span>"
+    ]
+  },
+  {
+    "objectID": "theory.html#linear-regression",
+    "href": "theory.html#linear-regression",
+    "title": "2  Theory",
+    "section": "2.2 Linear regression",
+    "text": "2.2 Linear regression\n\n2.2.1 Simple linear regression\nAt the heart of linear regression lies the equation of the straight line (Equation eq-line)\n\\[ y = b + mx \\tag{2.2}\\]\nwhere \\(b\\) denotes the intercept where the line crosses the y-axis, and \\(m\\) denotes the slope of the line.\nIn simple linear regression we assume that the relationship between the response variable \\(Y\\) and the independent variable \\(X\\) is approximately linear, which can be expressed as (Equation eq-linreg-1). (James et al., 2023, p. 61)\n\\[ Y \\approx \\beta_0 + \\beta_1 X \\tag{2.3}\\]\nHere, \\(\\beta_0\\) denotes the intercept and \\(\\beta_1\\) denotes the slope of the line. Using training data, we can estimate the coefficients \\(\\hat{\\beta_0}\\) and \\(\\hat{\\beta_1}\\) and predict a certain value of \\(Y\\) by computing\n\\[ \\hat{y} = \\hat{\\beta_0} + \\hat{\\beta_1} x.  \\tag{2.4}\\]\n\n2.2.1.1 Estimating coefficients\nThe coefficients can be estimated using a number of approaches, but the most common method is the least squares criterion.\nThe goal is to find values for \\(\\beta_0\\) and \\(\\beta_1\\) such that the difference between the observed response value and our predicted response value, the residual, is as small as possible. The ith residual \\(e_i\\) can be expressed as \\(e_i = y_i - \\hat{y}_i\\). Given \\(n\\) observations in our training data, the residual sum of squares (RSS) is defined as\n\\[ RSS = e^2_1 + e^2_2 + \\ldots + e^2_n,  \\tag{2.5}\\] or\n\\[ RSS = \\sum_{i = 1}^{n}(y_i - \\hat{y}_i)^2.  \\tag{2.6}\\]\nThe least squares method then chooses \\(\\beta_0\\) and \\(\\beta_1\\) to minimize the RSS.\n\n\n\n\n\n\n\n\nFigure 2.1: Linear regression on simulated data. The red line shows the true relationship \\(f(X) = 3+5X\\), and the blue line is the least squares estimate for f(X) based on the generated data.\n\n\n\n\n\n\n\n2.2.1.2 Evaluating model performance\nTo assess how well a model fits the data, two measures are commonly used: the residual standard error (\\(RSE\\)), and the \\(R^2\\) statistic.\nIt is rarely the case that a models captures every thinkable variable that affects the outcome. Therefore, the error term \\(\\epsilon\\) from Equation eq-rel is present in our model. Equation eq-linreg-1 can be subsistuted for the general function \\(f\\), which gives us Equation eq-linreg-3:\n\\[ Y = \\beta_0 + \\beta_1 X + \\epsilon.  \\tag{2.7}\\]\n\n2.2.1.2.1 The residual standard error\nThe \\(RSE\\) is an estimate of the standard deviation of \\(\\epsilon\\) (James et al., 2023, p. 69) and is computed by\n\\[ RSE = \\sqrt{\\dfrac{1}{n - 2}RSS}.  \\tag{2.8}\\]\nIf the predicted values of the model are close to the observed values, the \\(RSE\\) will be small and the model fits the data well.\n\n\n2.2.1.2.2 The \\(R^2\\) statistic\nThe \\(RSE\\) is measured in the units of \\(Y\\). This makes interpreting what a good value of the \\(RSE\\) is hard. (James et al., 2023, p. 70). The \\(R^2\\) statistic, on the other hand, is a proportion, and as such always takes on a value between 0 and 1.\nThe \\(R^2\\) statistic describes how much of the total variance in the response \\(Y\\) that can be explained by using \\(X\\) as a predictor. The formula used is seen in Equation eq-r2.\n\\[ R^2 = \\dfrac{TSS-RSS}{TSS} = 1 - \\dfrac{RSS}{TSS}  \\tag{2.9}\\]\n\\(TSS = \\sum{(y_i - \\bar{y})}\\) is the total sum of squares and RSS is defined in Equation eq-rss-2. While \\(R^2\\) is independent of the units of \\(Y\\), it can still be hard to determine what constitutes a good value of \\(R^2\\). This depends on the problem at hand as different domains handle different kinds of data, with different properties and relationships.\n\n\n\n\n2.2.2 Multiple linear regression\nSo far we have been using a single predictor \\(X_1\\) to predict the response \\(Y\\). In multiple linear regression, additional predictors are added to form the model\n\\[ Y = \\beta_0 + \\beta_1 X_1 + \\beta_2 X_2 + \\ldots + \\beta_p X_p + \\epsilon  \\tag{2.10}\\]\nwhere \\(X_j\\) represents the jth predictor, and \\(\\beta_j\\) represents the effect of \\(X_j\\) on \\(Y\\), or, in other words, the average effect on \\(Y\\) on a one unit increase in \\(X_j\\), given that all other predictors remain fixed.\n\n2.2.2.1 Potential problems\nIn Introduction to Statistical Learning, James and co-authors list six of the most common potential problems when fitting linear regression models (James et al., 2023, p. 93). These are:\n\nNon-linearity of the response-predictor relationships.\nCorrelation of error terms.\nNon-constant variance of error terms.\nOutliers.\nHigh-leverage points.\nCollinearity.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Theory</span>"
+    ]
+  },
+  {
+    "objectID": "theory.html#evaluating-models",
+    "href": "theory.html#evaluating-models",
+    "title": "2  Theory",
+    "section": "2.3 Evaluating models",
+    "text": "2.3 Evaluating models\nThe theory behind evaluating model performance. Cross validation.\n\n2.3.1 Train/test data\nThe reason behind splitting data.\n\n\n2.3.2 Evaluation metrics\nStatistical methods, RMSE…",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Theory</span>"
+    ]
+  },
+  {
+    "objectID": "theory.html#feature-selection",
+    "href": "theory.html#feature-selection",
+    "title": "2  Theory",
+    "section": "2.4 Feature selection",
+    "text": "2.4 Feature selection\nSignificance. Statistical methods vs. domain knowledge. (Hyndman, 2011)\n\n\n\n\nHyndman, R. J. (2011). Statistical tests for variable selection. https://robjhyndman.com/hyndsight/tests2/\n\n\nJames, G., Witten, D., Hastie, T., & Tibshirani, R. (2023). An introduction to statistical learning: With applications in r (2nd ed.). Stringer New York, NY.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Theory</span>"
+    ]
+  },
+  {
+    "objectID": "results.html",
+    "href": "results.html",
+    "title": "4  Results and discussion",
+    "section": "",
+    "text": "4.1 EDA\nggplot(data = df, aes(x = days_in_traffic, y = price)) + \n    geom_point(aes(col = fuel, size = hp), alpha = .5) + \n    scale_x_continuous()\n\n\n\n\n\n\n\nFigure 4.1: A plot\nfig &lt;- plot_ly(df, x = ~days_in_traffic, y = ~mileage, z = ~price, color = ~fuel, alpha = .75, type = \"scatter3d\", mode = \"markers\") |&gt; \n    add_markers() |&gt; \n    layout(title = \"Used cars\", scene = list(yaxis = list(type = \"log\", title = \"Mileage\")))\nfig",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Results and discussion</span>"
+    ]
+  },
+  {
+    "objectID": "results.html#eda",
+    "href": "results.html#eda",
+    "title": "4  Results and discussion",
+    "section": "",
+    "text": "4.1.1 Considerations regarding data",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Results and discussion</span>"
+    ]
+  },
+  {
+    "objectID": "results.html#results",
+    "href": "results.html#results",
+    "title": "4  Results and discussion",
+    "section": "4.2 Results",
+    "text": "4.2 Results",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Results and discussion</span>"
+    ]
+  },
+  {
+    "objectID": "results.html#discussion",
+    "href": "results.html#discussion",
+    "title": "4  Results and discussion",
+    "section": "4.3 Discussion",
+    "text": "4.3 Discussion\n\n4.3.1 Legal and ethical issues regarding data mining\nThe data behind this analysis was collected using an automated method, often called data mining or scraping.\nBlockets EULA (End User License Agreement) states the following regarding scraping their data (blocket.se, 2024):\n\nDu har inte rätt att kopiera, reproducera, publicera, ladda upp, skicka eller distribuera något material eller någon information från Webbplatsen utan föregående skriftligt tillstånd från Blocket. (…)\nAnvändning av automatiserade tjänster såsom robotar, spindlar, indexering eller liknande, samt andra metoder för systematisk användning av innehållet på Webbplatsen är inte tillåtet utan föregående skriftligt tillstånd från Blocket.\nAll otillåten användning medför ersättningsskyldighet. Den som avsiktligt eller genom grov oaktsamhet bryter mot lagen kan straffas med böter eller fängelse upp till två år och bli dömd att betala skadestånd.\n\nOr, in english, (my translation and emphasis):\n\nYou are not allowed to copy, reproduce, publish, upload, send or distribute any material or any information from the web site without prior written consent from Blocket. (…)\nUse of automated services such as robots, spiders, indexing or the like, and other methods for systematic use of the web site’s content is prohibited with prior written consent from Blocket.\nAny prohibited use comes with an obligation to compensate. Anyone who, knowingly or by gross negligence, breaks the law can be punished by fine or prison for up to two years, and be ordered to pay damages.\n\nIt is not clear from the text which law is referred to. The EULA also states that Blocket owns the immaterial rights to any material such as text, images, design and information meda available by using the site. This, then would be a question of copyright law. It is however not immediately clear that the contents scraped from the web site is such that it would fall under copyright law. 1\nSweden is however a member of the European Union, and in 1996 the European Council approved the Directive 96/9/EC of the European Parliament and of the Council of 11 March 1996 on the legal protection of databases, (European Union, 2019).2\nThe directive, amended in 2019, works as an analog to the copyright laws, and protects the rights of database creators and owners. This might be the law that is referred to in the Blocket EULA.\nShould probably write Blocket and ask them!\n\nDifference b/w copyrighted material such as images, and information in a database. Also difference b/w US and European law.\nEU sui generis law protects database owners but exceptions could be made for research. European Union (2019)\n\n\n\n4.3.2 Data analysis\n\nWould new car price be a significant variable? We can only guess as we didn’t include it.\nCollect the same data over time to find patterns\nElectric cars are underrepresented - what will that to to the data? &lt;- Introduction?\n\n\n\n4.3.3 Parameter selection\nStatistical methods vs. domain knowledge\n\n\n\n\nblocket.se. (2024). Användarvillkor. https://www.blocket.se/om/villkor/anvandarvillkor\n\n\nEuropean Union. (2019). Directive 96/9/EC of the european parliament and of the council of 11 march 1996 on the legal protection of databases. https://eur-lex.europa.eu/eli/dir/1996/9/oj/eng",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Results and discussion</span>"
+    ]
+  },
+  {
+    "objectID": "results.html#footnotes",
+    "href": "results.html#footnotes",
+    "title": "4  Results and discussion",
+    "section": "",
+    "text": "citation needed↩︎\nCheck how it actually works↩︎",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Results and discussion</span>"
+    ]
+  }
+]

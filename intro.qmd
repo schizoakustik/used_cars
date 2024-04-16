@@ -1,0 +1,10 @@
+# Introduction
+
+## Tasks and research questions
+
+* Fit a regression model to predict the price of a used car given certain features
+  * Collect data on used cars for sale
+* Which features, if any, contribute to the predicted price?
+  * Using statistical methods and domain research, select and possibly transform the most significant features in the data set
+* Using cross validation, fit and evaluate a number of models and select the best performing model.
+* Create a simple application to enter some data about a car and predict the price. (If there is time.)
