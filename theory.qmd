@@ -3,6 +3,7 @@
 #| include: false
 
 library(tidyverse)
+library(wesanderson)
 ```
 
 # Theory
@@ -52,7 +53,7 @@ The least squares method then chooses $\beta_0$ and $\beta_1$ to minimize the RS
 ```{r}
 #| echo: false
 #| label: fig-rss
-#| fig-cap: "Linear regression on simulated data. The red line shows the true relationship $f(X) = 3+5X$, and the blue line is the least squares estimate for f(X) based on the generated data."
+#| fig-cap: "Linear regression on simulated data. The orange line shows the true relationship $f(X) = 3+5X$, and the blue line is the least squares estimate for f(X) based on the generated data."
 
 
 set.seed(42)
@@ -62,19 +63,19 @@ e <- rnorm(100, mean = 0, sd = 5)
 y <- 3 + 5 * x + e
 
 ggplot(mapping = aes(x = x, y = y)) + 
-    geom_point() +
+    geom_point(col = "#333333") +
     geom_smooth(
       method = "lm", 
-      formula = y ~ x, 
-      col = "blue", 
+      formula = y ~ x,
       alpha = .5, 
       linewidth = 1, 
-      se = FALSE) +
+      se = FALSE, 
+      col = "#0072B2") +
     geom_line(
-      aes(x = x, y = 2 + 3 * x), 
-      col = "red", 
+      aes(x = x, y = 3 + 5 * x),
       linewidth = 1, 
-      alpha = .5) +
+      alpha = .5, 
+      col = "#D55E00") +
     theme_bw()
 ```
 #### Evaluating model performance
@@ -109,6 +110,8 @@ So far we have been using a single predictor $X_1$ to predict the response $Y$. 
 $$ Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \ldots + \beta_p X_p + \epsilon $$ {#eq-multi-linreg-1}
 
 where $X_j$ represents the *j*th predictor, and $\beta_j$ represents the effect of $X_j$ on $Y$, or, in other words, the *average* effect on $Y$ on a one unit increase in $X_j$, given that *all other predictors remain fixed*.
+
+
 
 #### Potential problems
 

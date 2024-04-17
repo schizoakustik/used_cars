@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Predicting used car prices with linear regression in R - 2&nbsp; Theory</title>
+<title>Predicting used car prices with linear regression in R - 3&nbsp; Method</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,27 +20,7 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for citations */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-  margin-bottom: 0em;
-}
-.hanging-indent div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}</style>
+</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -50,8 +30,8 @@ div.csl-indent {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./method.html" rel="next">
-<link href="./intro.html" rel="prev">
+<link href="./results.html" rel="next">
+<link href="./theory.html" rel="prev">
 <link href="./cover.png" rel="icon" type="image/png">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -90,35 +70,6 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 </head>
 
@@ -131,7 +82,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./theory.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Theory</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./method.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Method</span></a></li></ol></nav>
         <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -170,13 +121,13 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./theory.html" class="sidebar-item-text sidebar-link active">
+  <a href="./theory.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Theory</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./method.html" class="sidebar-item-text sidebar-link">
+  <a href="./method.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Method</span></span></a>
   </div>
 </li>
@@ -214,18 +165,11 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#statistical-learning" id="toc-statistical-learning" class="nav-link active" data-scroll-target="#statistical-learning"><span class="header-section-number">2.1</span> Statistical learning</a></li>
-  <li><a href="#linear-regression" id="toc-linear-regression" class="nav-link" data-scroll-target="#linear-regression"><span class="header-section-number">2.2</span> Linear regression</a>
+  <li><a href="#data-collection" id="toc-data-collection" class="nav-link active" data-scroll-target="#data-collection"><span class="header-section-number">3.1</span> Data collection</a></li>
+  <li><a href="#training-and-evaluating-models" id="toc-training-and-evaluating-models" class="nav-link" data-scroll-target="#training-and-evaluating-models"><span class="header-section-number">3.2</span> Training and evaluating models</a>
   <ul class="collapse">
-  <li><a href="#simple-linear-regression" id="toc-simple-linear-regression" class="nav-link" data-scroll-target="#simple-linear-regression"><span class="header-section-number">2.2.1</span> Simple linear regression</a></li>
-  <li><a href="#multiple-linear-regression" id="toc-multiple-linear-regression" class="nav-link" data-scroll-target="#multiple-linear-regression"><span class="header-section-number">2.2.2</span> Multiple linear regression</a></li>
+  <li><a href="#parameter-selection" id="toc-parameter-selection" class="nav-link" data-scroll-target="#parameter-selection"><span class="header-section-number">3.2.1</span> Parameter selection</a></li>
   </ul></li>
-  <li><a href="#evaluating-models" id="toc-evaluating-models" class="nav-link" data-scroll-target="#evaluating-models"><span class="header-section-number">2.3</span> Evaluating models</a>
-  <ul class="collapse">
-  <li><a href="#traintest-data" id="toc-traintest-data" class="nav-link" data-scroll-target="#traintest-data"><span class="header-section-number">2.3.1</span> Train/test data</a></li>
-  <li><a href="#evaluation-metrics" id="toc-evaluation-metrics" class="nav-link" data-scroll-target="#evaluation-metrics"><span class="header-section-number">2.3.2</span> Evaluation metrics</a></li>
-  </ul></li>
-  <li><a href="#feature-selection" id="toc-feature-selection" class="nav-link" data-scroll-target="#feature-selection"><span class="header-section-number">2.4</span> Feature selection</a></li>
   </ul>
 </nav>
     </div>
@@ -234,7 +178,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Theory</span></h1>
+<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Method</span></h1>
 </div>
 
 
@@ -251,111 +195,21 @@ window.Quarto = {
 </header>
 
 
-<section id="statistical-learning" class="level2" data-number="2.1">
-<h2 data-number="2.1" class="anchored" data-anchor-id="statistical-learning"><span class="header-section-number">2.1</span> Statistical learning</h2>
-<p>In short, statistical learning is the process of using statistical methods and mathematical models to understand data <span class="citation" data-cites="islr">(<a href="references.html#ref-islr" role="doc-biblioref">James et al., 2023, p. 1</a>)</span>. This process can be used to predict values given a set of variables, or to gain a better understanding of how those variables relate to the wanted value, also called <em>inference</em>. Often, the goal might be both prediction and inference.</p>
-<p>Given that we wish to predict the response value <span class="math inline">\(Y\)</span> from one or more variables, or predictors, <span class="math inline">\(X\)</span>, this can be expressed in a general form as <a href="#eq-rel" class="quarto-xref">Equation&nbsp;<span>2.1</span></a>.</p>
-<p><span id="eq-rel"><span class="math display">\[ Y = f(X) + \epsilon  \tag{2.1}\]</span></span></p>
-<p>Here, <span class="math inline">\(f\)</span> is some kind of transformation made on <span class="math inline">\(X\)</span> in order for it to help us estimate <span class="math inline">\(Y\)</span>, end <span class="math inline">\(\epsilon\)</span> is an <em>error term</em> which is unknown, and assumed to be normally distributed with a mean of 0. We need <span class="math inline">\(\epsilon\)</span> because our model will never be able to take into account for every little variable that might influence or prediction.</p>
-<p>One of the simplest, yet most powerful, methods of statistical learning is <em>linear regression</em>.</p>
+<section id="data-collection" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="data-collection"><span class="header-section-number">3.1</span> Data collection</h2>
+<p>How we collected the data and why we selected the parameters that we did. Did not collect price for new car.</p>
 </section>
-<section id="linear-regression" class="level2" data-number="2.2">
-<h2 data-number="2.2" class="anchored" data-anchor-id="linear-regression"><span class="header-section-number">2.2</span> Linear regression</h2>
-<section id="simple-linear-regression" class="level3" data-number="2.2.1">
-<h3 data-number="2.2.1" class="anchored" data-anchor-id="simple-linear-regression"><span class="header-section-number">2.2.1</span> Simple linear regression</h3>
-<p>At the heart of linear regression lies the equation of the straight line (<a href="#eq-line" class="quarto-xref">Equation&nbsp;<span>2.2</span></a>)</p>
-<p><span id="eq-line"><span class="math display">\[ y = b + mx \tag{2.2}\]</span></span></p>
-<p>where <span class="math inline">\(b\)</span> denotes the <em>intercept</em> where the line crosses the y-axis, and <span class="math inline">\(m\)</span> denotes the <em>slope</em> of the line.</p>
-<p>In simple linear regression we assume that the relationship between the response variable <span class="math inline">\(Y\)</span> and the independent variable <span class="math inline">\(X\)</span> is approximately linear, which can be expressed as (<a href="#eq-linreg-1" class="quarto-xref">Equation&nbsp;<span>2.3</span></a>). <span class="citation" data-cites="islr">(<a href="references.html#ref-islr" role="doc-biblioref">James et al., 2023, p. 61</a>)</span></p>
-<p><span id="eq-linreg-1"><span class="math display">\[ Y \approx \beta_0 + \beta_1 X \tag{2.3}\]</span></span></p>
-<p>Here, <span class="math inline">\(\beta_0\)</span> denotes the intercept and <span class="math inline">\(\beta_1\)</span> denotes the slope of the line. Using training data, we can estimate the <em>coefficients</em> <span class="math inline">\(\hat{\beta_0}\)</span> and <span class="math inline">\(\hat{\beta_1}\)</span> and predict a certain value of <span class="math inline">\(Y\)</span> by computing</p>
-<p><span id="eq-linreg-2"><span class="math display">\[ \hat{y} = \hat{\beta_0} + \hat{\beta_1} x.  \tag{2.4}\]</span></span></p>
-<section id="estimating-coefficients" class="level4" data-number="2.2.1.1">
-<h4 data-number="2.2.1.1" class="anchored" data-anchor-id="estimating-coefficients"><span class="header-section-number">2.2.1.1</span> Estimating coefficients</h4>
-<p>The coefficients can be estimated using a number of approaches, but the most common method is the <em>least squares</em> criterion.</p>
-<p>The goal is to find values for <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span> such that the difference between the observed response value and our predicted response value, the <em>residual</em>, is as small as possible. The <em>i</em>th residual <span class="math inline">\(e_i\)</span> can be expressed as <span class="math inline">\(e_i = y_i - \hat{y}_i\)</span>. Given <span class="math inline">\(n\)</span> observations in our training data, the <em>residual sum of squares</em> (RSS) is defined as</p>
-<p><span id="eq-rss-1"><span class="math display">\[ RSS = e^2_1 + e^2_2 + \ldots + e^2_n,  \tag{2.5}\]</span></span> or</p>
-<p><span id="eq-rss-2"><span class="math display">\[ RSS = \sum_{i = 1}^{n}(y_i - \hat{y}_i)^2.  \tag{2.6}\]</span></span></p>
-<p>The least squares method then chooses <span class="math inline">\(\beta_0\)</span> and <span class="math inline">\(\beta_1\)</span> to minimize the RSS.</p>
-<div class="cell">
-<div class="cell-output-display">
-<div id="fig-rss" class="quarto-figure quarto-figure-center quarto-float anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-rss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="theory_files/figure-html/fig-rss-1.png" class="img-fluid figure-img" width="672">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2.1: Linear regression on simulated data. The orange line shows the true relationship <span class="math inline">\(f(X) = 3+5X\)</span>, and the blue line is the least squares estimate for f(X) based on the generated data.
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="evaluating-model-performance" class="level4" data-number="2.2.1.2">
-<h4 data-number="2.2.1.2" class="anchored" data-anchor-id="evaluating-model-performance"><span class="header-section-number">2.2.1.2</span> Evaluating model performance</h4>
-<p>To assess how well a model fits the data, two measures are commonly used: the <em>residual standard error</em> (<span class="math inline">\(RSE\)</span>), and the <span class="math inline">\(R^2\)</span> statistic.</p>
-<p>It is rarely the case that a models captures every thinkable variable that affects the outcome. Therefore, the error term <span class="math inline">\(\epsilon\)</span> from <a href="#eq-rel" class="quarto-xref">Equation&nbsp;<span>2.1</span></a> is present in our model. <a href="#eq-linreg-1" class="quarto-xref">Equation&nbsp;<span>2.3</span></a> can be subsistuted for the general function <span class="math inline">\(f\)</span>, which gives us <a href="#eq-linreg-3" class="quarto-xref">Equation&nbsp;<span>2.7</span></a>:</p>
-<p><span id="eq-linreg-3"><span class="math display">\[ Y = \beta_0 + \beta_1 X + \epsilon.  \tag{2.7}\]</span></span></p>
-<section id="the-residual-standard-error" class="level5" data-number="2.2.1.2.1">
-<h5 data-number="2.2.1.2.1" class="anchored" data-anchor-id="the-residual-standard-error"><span class="header-section-number">2.2.1.2.1</span> The residual standard error</h5>
-<p>The <span class="math inline">\(RSE\)</span> is an estimate of the standard deviation of <span class="math inline">\(\epsilon\)</span> <span class="citation" data-cites="islr">(<a href="references.html#ref-islr" role="doc-biblioref">James et al., 2023, p. 69</a>)</span> and is computed by</p>
-<p><span id="eq-rse"><span class="math display">\[ RSE = \sqrt{\dfrac{1}{n - 2}RSS}.  \tag{2.8}\]</span></span></p>
-<p>If the predicted values of the model are close to the observed values, the <span class="math inline">\(RSE\)</span> will be small and the model fits the data well.</p>
-</section>
-<section id="the-r2-statistic" class="level5" data-number="2.2.1.2.2">
-<h5 data-number="2.2.1.2.2" class="anchored" data-anchor-id="the-r2-statistic"><span class="header-section-number">2.2.1.2.2</span> The <span class="math inline">\(R^2\)</span> statistic</h5>
-<p>The <span class="math inline">\(RSE\)</span> is measured in the units of <span class="math inline">\(Y\)</span>. This makes interpreting what a good value of the <span class="math inline">\(RSE\)</span> is hard. <span class="citation" data-cites="islr">(<a href="references.html#ref-islr" role="doc-biblioref">James et al., 2023, p. 70</a>)</span>. The <span class="math inline">\(R^2\)</span> statistic, on the other hand, is a <em>proportion</em>, and as such always takes on a value between 0 and 1.</p>
-<p>The <span class="math inline">\(R^2\)</span> statistic describes how much of the total variance in the response <span class="math inline">\(Y\)</span> that can be explained by using <span class="math inline">\(X\)</span> as a predictor. The formula used is seen in <a href="#eq-r2" class="quarto-xref">Equation&nbsp;<span>2.9</span></a>.</p>
-<p><span id="eq-r2"><span class="math display">\[ R^2 = \dfrac{TSS-RSS}{TSS} = 1 - \dfrac{RSS}{TSS}  \tag{2.9}\]</span></span></p>
-<p><span class="math inline">\(TSS = \sum{(y_i - \bar{y})}\)</span> is the <em>total sum of squares</em> and RSS is defined in <a href="#eq-rss-2" class="quarto-xref">Equation&nbsp;<span>2.6</span></a>. While <span class="math inline">\(R^2\)</span> is independent of the units of <span class="math inline">\(Y\)</span>, it can still be hard to determine what constitutes a good value of <span class="math inline">\(R^2\)</span>. This depends on the problem at hand as different domains handle different kinds of data, with different properties and relationships.</p>
-</section>
-</section>
-</section>
-<section id="multiple-linear-regression" class="level3" data-number="2.2.2">
-<h3 data-number="2.2.2" class="anchored" data-anchor-id="multiple-linear-regression"><span class="header-section-number">2.2.2</span> Multiple linear regression</h3>
-<p>So far we have been using a single predictor <span class="math inline">\(X_1\)</span> to predict the response <span class="math inline">\(Y\)</span>. In <em>multiple linear regression</em>, additional predictors are added to form the model</p>
-<p><span id="eq-multi-linreg-1"><span class="math display">\[ Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \ldots + \beta_p X_p + \epsilon  \tag{2.10}\]</span></span></p>
-<p>where <span class="math inline">\(X_j\)</span> represents the <em>j</em>th predictor, and <span class="math inline">\(\beta_j\)</span> represents the effect of <span class="math inline">\(X_j\)</span> on <span class="math inline">\(Y\)</span>, or, in other words, the <em>average</em> effect on <span class="math inline">\(Y\)</span> on a one unit increase in <span class="math inline">\(X_j\)</span>, given that <em>all other predictors remain fixed</em>.</p>
-<section id="potential-problems" class="level4" data-number="2.2.2.1">
-<h4 data-number="2.2.2.1" class="anchored" data-anchor-id="potential-problems"><span class="header-section-number">2.2.2.1</span> Potential problems</h4>
-<p>In <em>Introduction to Statistical Learning</em>, James and co-authors list six of the most common potential problems when fitting linear regression models <span class="citation" data-cites="islr">(<a href="references.html#ref-islr" role="doc-biblioref">James et al., 2023, p. 93</a>)</span>. These are:</p>
-<ol type="1">
-<li>Non-linearity of the response-predictor relationships.</li>
-<li>Correlation of error terms.</li>
-<li>Non-constant variance of error terms.</li>
-<li>Outliers.</li>
-<li>High-leverage points.</li>
-<li>Collinearity.</li>
-</ol>
-</section>
-</section>
-</section>
-<section id="evaluating-models" class="level2" data-number="2.3">
-<h2 data-number="2.3" class="anchored" data-anchor-id="evaluating-models"><span class="header-section-number">2.3</span> Evaluating models</h2>
-<p>The theory behind evaluating model performance. Cross validation.</p>
-<section id="traintest-data" class="level3" data-number="2.3.1">
-<h3 data-number="2.3.1" class="anchored" data-anchor-id="traintest-data"><span class="header-section-number">2.3.1</span> Train/test data</h3>
-<p>The reason behind splitting data.</p>
-</section>
-<section id="evaluation-metrics" class="level3" data-number="2.3.2">
-<h3 data-number="2.3.2" class="anchored" data-anchor-id="evaluation-metrics"><span class="header-section-number">2.3.2</span> Evaluation metrics</h3>
-<p>Statistical methods, RMSE…</p>
-</section>
-</section>
-<section id="feature-selection" class="level2" data-number="2.4">
-<h2 data-number="2.4" class="anchored" data-anchor-id="feature-selection"><span class="header-section-number">2.4</span> Feature selection</h2>
-<p>Significance. Statistical methods vs.&nbsp;domain knowledge. <span class="citation" data-cites="hyndman">(<a href="references.html#ref-hyndman" role="doc-biblioref">Hyndman, 2011</a>)</span></p>
+<section id="training-and-evaluating-models" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="training-and-evaluating-models"><span class="header-section-number">3.2</span> Training and evaluating models</h2>
+<ul>
+<li>Mark, Model and Mark/Model?</li>
+<li>Motor size does not make sense for electric cars. We need to decide whether to drop the column, or drop the electric cars. Start by looking at a model with the electric cars dropped to see if the motor size is significant for the remaining observations.</li>
+</ul>
+<section id="parameter-selection" class="level3" data-number="3.2.1">
+<h3 data-number="3.2.1" class="anchored" data-anchor-id="parameter-selection"><span class="header-section-number">3.2.1</span> Parameter selection</h3>
 
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list" style="display: none">
-<div id="ref-hyndman" class="csl-entry" role="listitem">
-Hyndman, R. J. (2011). <em>Statistical tests for variable selection</em>. <a href="https://robjhyndman.com/hyndsight/tests2/">https://robjhyndman.com/hyndsight/tests2/</a>
-</div>
-<div id="ref-islr" class="csl-entry" role="listitem">
-James, G., Witten, D., Hastie, T., &amp; Tibshirani, R. (2023). <em>An introduction to statistical learning: With applications in r</em> (2nd ed.). Stringer New York, NY.
-</div>
-</div>
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -770,13 +624,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./intro.html" class="pagination-link" aria-label="Introduction">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span>
+      <a href="./theory.html" class="pagination-link" aria-label="Theory">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Theory</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./method.html" class="pagination-link" aria-label="Method">
-        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Method</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./results.html" class="pagination-link" aria-label="Results and discussion">
+        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Results and discussion</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
