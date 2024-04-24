@@ -1,9 +1,11 @@
+
 ```{r}
 #| label: theory-setup
 #| include: false
 
 library(tidyverse)
-library(wesanderson)
+library(plotly)
+library(pracma)
 ```
 
 # Theory
@@ -52,7 +54,7 @@ The least squares method then chooses $\beta_0$ and $\beta_1$ to minimize the RS
 
 ```{r}
 #| echo: false
-#| label: fig-rss
+#| label: fig-linreg-1
 #| fig-cap: "Linear regression on simulated data. The orange line shows the true relationship $f(X) = 3+5X$, and the blue line is the least squares estimate for f(X) based on the generated data."
 
 
@@ -94,6 +96,14 @@ $$ RSE = \sqrt{\dfrac{1}{n - 2}RSS}. $$ {#eq-rse}
 
 If the predicted values of the model are close to the observed values, the $RSE$ will be small and the model fits the data well.
 
+The $RSE$ can also be used to find out if there is a relationship between the predictor and the outcome. 
+
+We can perform a hypothesis test with $H_0: \beta_1 = 0$ against $H_a: \beta_1 \neq 0$ to see if the coefficient value is sufficiently far from $0$. By calculating the *t*-statistic
+
+$$ t = \dfrac{\beta_1-0}{SE(\hat{\beta}_1)} $$ {#eq-t-stat}
+
+we can find the probability of finding this value in the *t*-distribution. This probability is the *p*-value, and a small enough *p*-value, based on our chosen confidence level, might lead us to reject the null hypothesis that there is no association between the predictor and the response.
+
 ##### The $R^2$ statistic
 
 The $RSE$ is measured in the units of $Y$. This makes interpreting what a good value of the $RSE$ is hard. [@islr, p. 70]. The $R^2$ statistic, on the other hand, is a *proportion*, and as such always takes on a value between 0 and 1.
@@ -111,6 +121,80 @@ $$ Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \ldots + \beta_p X_p + \epsilon $$ 
 
 where $X_j$ represents the *j*th predictor, and $\beta_j$ represents the effect of $X_j$ on $Y$, or, in other words, the *average* effect on $Y$ on a one unit increase in $X_j$, given that *all other predictors remain fixed*.
 
+The coefficients $\beta_0, \beta_1, \ldots, \beta_p$ are estimated in the same way as in simple linear regression, using the least squares method.
+
+```{r}
+#| label: fig-linreg-2
+#| fig-cap: "Linear regression with two predictors. The one-dimensional line becomes a two-dimensional plane."
+#| echo: false
+#| eval: false
+set.seed(42)
+
+# Simulate data
+e <- rnorm(100, mean = 0, sd = 5)
+df <- tibble(
+  x1 = runif(100, min = -2, max = 2), 
+  x2 = runif(100, min = -2, max = 2),
+  y = 3 + 5 * x1 + 1.3 * x2 + e)
+
+# Fit model
+model <- lm(y ~ x1 + x2, data = df)
+
+# Add predictions to data frame
+df <- df |> mutate(pred = predict(model, df))
+
+# Plot model
+mesh_size <- .2
+margin <- 0
+
+x_min <- min(df$x1) - margin
+x_max <- max(df$x1) - margin
+y_min <- min(df$x2) - margin
+y_max <- max(df$x2) - margin
+
+xrange <- seq(x_min, x_max, mesh_size)
+yrange <- seq(y_min, y_max, mesh_size)
+
+xy <- meshgrid(xrange, yrange)
+xx <- xy$X
+yy <- xy$Y
+
+dim_val <- dim(xx)
+
+xx1 <- matrix(xx, length(xx), 1)
+yy1 <- matrix(yy, length(yy), 1)
+
+final <- tibble(x1 = xx1[, 1], x2 = yy1[, 1])
+
+pred <- model |> predict(final)
+pred_mtx <- matrix(pred, dim_val[1], dim_val[2])
+
+plot_ly(df, x = ~ x1, y = ~ x2, z = ~ y) |> 
+  add_markers(size = 1) |>
+  add_surface(x = xrange, y = yrange, z = pred_mtx, type = "mesh3d")
+```
+#### The $F$-statistic
+
+To find out if any of our predictors actually affect the response variable, we can perform a *hypothesis test*. Our null hypothesis $H_0$ is that none of the predictors are related to the outcome:
+
+$$ H_0: \beta_1 = \beta_2 = \cdots = \beta_p = 0 $$
+
+which we test against the alternative hypothesis $H_a$
+
+$$ H_a: \text{at least one } \beta_j \text{ is non-zero.} $$
+
+To perform the test, we compute the *F-statistic*,
+
+$$ F = \dfrac{(TSS-RSS)/p}{RSS/(n-p-1).} $$ {#eq-f-stat}
+
+If $H_0$ is true, the expected value of the $F$-statistic is close to $1$. If the alternative hypothesis is true, we expect $F$ to be greater than $1$.
+
+#### Variable selection
+The $F$-statistic tells us if at least one of the predictors are associated with the response variable, but it cannot tell us which this or these are. 
+
+We could look at the *p*-values of the individual variables, but if we have a lot of predictors, the probability of finding *p*-values below $0.05$ by chance increases.
+
+This is again taking too long. I might need to move forward.
 
 
 #### Potential problems

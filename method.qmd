@@ -1,11 +1,142 @@
+---
+number-sections: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+library(tidyverse)
+library(tidymodels)
+```
+
 # Method
 
 ## Data collection
-How we collected the data and why we selected the parameters that we did. Did not collect price for new car.
+
+The data behind this analysis was scraped from the swedish site [Blocket](https://blocket.se) which is a marketplace for individuals and businesses. 
+
+### First data filtering step
+The data scraped was filtered by a number of parameters set beforehand:
+
+* The price range was between 20 000 and 500 000 SEK
+* No cars from before the year 2000
+* Only ads from individuals, no businesses
+* No commercial vehicles
+
+The price range was chosen to obtain as much data as possible without having to deal with values too extreme. @fig-price_distribution_1 shows the distribution of car prices at the time when filtered for the other parameters above. The selected range of 20 000 to 500 000 SEK seems like a good compromise.
+
+```{r}
+#| label: fig-price_distribution_1
+#| fig-cap: "Distribution of car ad prices"
+#| echo: false
+
+interval <- tibble(start = 20000, end = 500000, label = "Selected interval")
+
+prices_50 <- tibble(
+  range = seq(0, 1150000, 50000), 
+  amount = c(3985, 2858, 1781, 1315, 782, 536, 373, 286, 167, 145, 105, 72, 35, 43, 20, 20, 7, 17, 6, 6, 5, 4, 4, 6)
+)
+
+ggplot() +
+geom_rect(
+  aes(xmin = start, xmax = end, fill = label), 
+  ymin = -Inf, ymax = Inf, alpha = 0.2,
+  data = interval) +
+geom_vline(xintercept = 20000, alpha = .2, linetype = "dashed") +
+geom_vline(xintercept = 500000, alpha = .2, linetype = "dashed") +
+geom_col(aes(x = range, y = amount), data = prices_50) +
+xlab("Price") +
+ylab("Number of ads") +
+guides(
+  fill = guide_legend(
+    title = element_blank(),
+    direction = "horizontal",
+    position = "inside")
+) +
+scale_fill_manual(values=c("green")) +
+theme_bw() +
+theme(legend.position.inside = c(0.6, 0.7), legend.text = element_text(size = 14)) +
+labs(title = "Distribution of prices", caption = "Source: blocket.se")
+```
+
+The year 2000 was chosen somewhat arbitrarily. The goal was to have a mix of newer and older cars in the data set, but not too old.
+
+
+## Data preprocessing {#sec-preprocess}
+The data is imported and preprocessed in a pipeline. The comments in the code should be explanatory.
+```{r}
+#| label: import-and-prepare-data
+
+# Import data
+
+df <- read.csv("data/car_ads_data_02.csv") 
+
+# Data preparation chain:
+# Remove rows with price == NA
+# Filter out prices < 20 000 and > 500 000
+# Trim extra whitespace
+# Convert character NA:s to actual NA:s
+# Filter out rows with NA:s in type column
+# Remove thousand separator whitespace in mileage
+# Create make_model column and place it before fuel column
+# Change column types
+# Create age column
+# Filter out cars with wrong first_in_traffic date
+# Create days_in_traffic and miles_per_day columns
+# Convert to tibble
+
+df_prep <- df |> 
+  dplyr::filter(!is.na(price)) |>
+  dplyr::filter(price >= 20000 & price <= 500000) |>
+  mutate(across(everything(), str_trim)) |>
+  mutate(across(everything(), ~ na_if(.x, "NA"))) |>
+  dplyr::filter(!is.na(type)) |>
+  mutate(mileage = str_replace_all(mileage, "\\D", "")) |>
+  unite(make_model, make:model, sep= " ", remove = FALSE) |>
+  relocate(make_model, .before = fuel) |>
+  mutate(across(c(model, make_model, fuel, gearbox, type, drive, color, region), as.factor)) |>
+  mutate(across(c(year, mileage, hp, motorsize, price), as.integer)) |>
+  mutate(first_in_traffic = as.Date(first_in_traffic)) |>
+  mutate(age = year(Sys.Date())-year) |>
+  dplyr::filter(year(first_in_traffic) >= 1999) |>
+  mutate(days_in_traffic = as.integer(Sys.Date() - first_in_traffic), miles_per_day = mileage / days_in_traffic) |>
+  as_tibble()
+
+# Change make to "Other" for observations < features
+df_prep <- rows_update(
+    df_prep, df_prep |>
+    group_by(make) |>
+        mutate(count = n()) |>
+        dplyr::filter(count < length(df_prep)) |>
+        mutate(make = "Other") |>
+        select(-count), 
+    by = "id")
+
+df_prep <- df_prep |> mutate(make = as.factor(make))
+```
+
+### Train/test
+Then the data is split into a training set and a test set.
+```{r}
+#| label: split-train-test
+# Split data
+data_split <- initial_split(df_prep, prop = .8)
+
+train_data <- training(data_split)
+test_data <- testing(data_split)
+```
+The EDA section (-@sec-eda) of the Results chapter explains the data in more detail.
 
 ## Training and evaluating models
+For training and evaluting the models, various packages from the `tidymodels` framework were used.
+`rsample` was used to split the data into training and test sets, and for creating folds for cross validation. `recipes` and `workflows` were used to create a reusable pipeline for preprocessing the data. `parsnip` was used to create the actual linear regression model.
+
+
+
 * How the data was prepared for fitting.
 * Mark, Model and Mark/Model?
 * Motor size does not make sense for electric cars. We need to decide whether to drop the column, or drop the electric cars. Start by looking at a model with the electric cars dropped to see if the motor size is significant for the remaining observations.
 
-### Parameter selection
+### Variable selection
+An interesting dilemma - can we create subsets of the mark predictors? Some of them are not significant while others are, but they describe the same aspect. Can we really train a final model using only a subset of marks? How will that affect predictions?

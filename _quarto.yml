@@ -2,7 +2,7 @@ project:
   type: book
 
 book:
-  title: "Predicting used car prices with linear regression in R"
+  title: "Statistical inference on used car data using linear regression in R"
   author: "Linus Rundberg Streuli"
   date: "4/10/2024"
   favicon: cover.png
@@ -19,13 +19,17 @@ book:
 bibliography: references.bib
 csl: apa.csl
 number-sections: true
+number-depth: 2
+tbl-cap-location: bottom
 # bibliographystyle: apalike
+
+warning: false
 
 format:
   html:
     theme: cosmo
   pdf:
-    documentclass: scrreprt
+    papersize: A4
     header-includes: |
       \titlehead{\centering\includegraphics[width=6in]{cover.png}}
 

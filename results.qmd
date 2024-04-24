@@ -1,67 +1,270 @@
-# Results and discussion
-## EDA
-
 ```{r}
 #| label: setup
 #| include: false
 
 library(tidyverse)
+library(tidymodels)
+library(skimr)
+library(patchwork)
+library(ggcorrplot)
+library(GGally)
+library(ggthemes)
+library(viridis)
 
 options(scipen = 12, digits = 5)
+theme_set(theme_bw())
+set.seed(42)
 
-# Data preparation chain:
-# Remove rows with no price
-# Filter out prices < 20 000 and > 500 000
-# Trim extra whitespace
-# Create mark_model column and place it before fuel column
-# Change column types
-# Filter out cars with wrong first_in_traffic date as they have more erroneous values
-# Create days_in_traffic column
-# Filter out marks that have less observations than the number of features
-# Convert to tibble
+train_data <- readRDS(file = "data/train_data.Rdata")
+```
 
-df <- read.csv("data/car_ads_data_02.csv") |> 
-    dplyr::filter(!is.na(price)) |>
-    dplyr::filter(price >= 20000 & price <= 500000) |>
-    mutate(across(everything(), str_trim)) |>
-    mutate(mileage = str_replace_all(mileage, "\\D", "")) |>
-    unite(mark_model, mark:model,sep= " ", remove = FALSE) |>
-    relocate(mark_model, .before = fuel) |>
-    mutate(across(c(mark, model, mark_model, fuel, gearbox, type, drive, color, region), as.factor)) |>
-    mutate(across(c(year, mileage, hp, motorsize, price), as.integer)) |>
-    mutate(first_in_traffic = as.Date(first_in_traffic)) |>
-    dplyr::filter(year(first_in_traffic) >= 1999) |>
-    mutate(days_in_traffic = Sys.Date() - first_in_traffic) |>
-    group_by(mark) |>
-    mutate(avg_price= mean(price), count = n()) |>
-    filter(count > length(df)) |>
+# Results and discussion
+## EDA {#sec-eda}
+The raw data was preprocessed as described in the Data Preprocessing section of the Theory chapter (-@sec-preprocess). Here we take a closer look at the data.
+
+### Overview
+```{r}
+#| label: tbl-data-overview
+#| tbl-cap: "Overview of training data"
+#| echo: false
+
+train_data
+```
+The entire data set consists of 7 661 observations with 18 features each. Each observation is an ad for a used car.
+
+### Missing data
+Several of the observations in the raw data had missing values in the `price` column. Those where filtered out at the very start as `price` is our target value.
+
+There are also some 700 observations that are have missing values in the `motorsize` column. Most of these are electric cars (see @fig-missing-motorsize). I want to keep the electric cars in the data set so I don't want to remove those observations all together.
+
+There does seem to be some sort of relationship between motor size and price. (See @fig-motorsize-vs-price). Removing the column might have a negative impact on the model's ability to predict prices, but keeping it leaves me with a whole lot of missing values, and issues with electric cars. One way might be to impute the column with the mean or median of the motor sizes, but since electric cars actually don't have a motor size, that seems wrong.
+
+My final decision was to remove the `motorsize` column.
+
+```{r}
+#| label: fig-missing-motorsize
+#| fig-cap: "Proportion of missing motor size values by fuel type"
+#| echo: false
+
+subs <- read.csv("data/car_ads_data_02.csv") |>
+  dplyr::filter(!is.na(price)) |>
+  dplyr::filter(price >= 20000 & price <= 500000) |>
+  mutate(across(everything(), str_trim)) |>
+  mutate(across(everything(), ~ na_if(.x, "NA"))) |>
+  mutate(across(c(motorsize, price), as.numeric))
+
+bind_cols(
+  subs |> 
+    group_by(fuel) |>
+    summarize(count = n()) |>
+    ungroup(),
+  subs |>
+    group_by(fuel) |>
+    select(fuel, motorsize) |>
+    summarize(na = sum(is.na(motorsize))) |>
     ungroup() |>
-    as_tibble()
-```
-
-
-```{r}
-#| label: fig-plot
-#| fig-cap: "A plot"
-ggplot(data = df, aes(x = days_in_traffic, y = price)) + 
-    geom_point(aes(col = fuel, size = hp), alpha = .5) + 
-    scale_x_continuous()
+    select(-fuel)
+) |> mutate(prop = na/count) |>
+  select(fuel, prop) |>
+  ggplot(aes(x = fuel, y = prop, fill = fuel)) +
+  geom_col() + 
+  theme(legend.position = "none") +
+  labs(title = "Proportion of missing motor size values by fuel type", x = NULL, y = "Proportion")
 
 ```
 
 ```{r}
-#| eval: false
-fig <- plot_ly(df, x = ~days_in_traffic, y = ~mileage, z = ~price, color = ~fuel, alpha = .75, type = "scatter3d", mode = "markers") |> 
-    add_markers() |> 
-    layout(title = "Used cars", scene = list(yaxis = list(type = "log", title = "Mileage")))
-fig
+#| label: fig-motorsize-vs-price
+#| fig-cap: "Motor size vs. price with an added regression line."
+#| echo: false
+
+subs_no_na <- subs |> filter(!is.na(motorsize)) 
+
+subs_no_na |>
+  ggplot(aes(x = motorsize, y = price)) + 
+  geom_point() + 
+  geom_smooth() +
+  theme(axis.text.x = element_blank(), axis.text.y = element_blank()) + 
+  labs(title = "Motorsize vs. price")
 ```
 
-### Considerations regarding data
+### Other columns with missing data 
 
+Three remaining columns have issing values. They are all categorical values and it doesn't make sense to impute them with the most common values. Since there will be a maximum loss of 123 observations, the rows with the missing values will be removed.
 
+### Handling uncommon values
+
+Some values in the `make` category were only present in a few observations. This increases the risk of having values that are only present in the training or test data sets. At least one make was present only in the single observation. Even when using a stratified split, that observation would end up in either the training or the test set.
+
+I decided to keep them in the data, but group them together under the "Other" name. The cutoff is set to be less than the number of columns in the data set, that is, 18.
 
 ## Results
+
+### Which car makes have a significant impact on the price?
+
+Of the 63 unique car makes in the original data set, 28 had 18 observations or fewer. As mentioned, these are grouped together under the "Other" name, which gives us 36 unique values for the `make` category. One question I wanted to ask was, which makes (if any) seem to have an impact on the asking price for the car? [Figure @fig-significant-makes] shows the estimated coefficients of the 20 car makes that have a statistically significant effect on the price.
+
+
+```{r}
+#| label: fig-significant-makes
+#| fig-cap: "Estimated coefficients of car makes with a p-value < 0.05"
+#| echo: false
+
+sig_makes <-
+  train_data |>
+  nest() |>
+  mutate(
+    fit = map(data, ~ lm(price ~ make, data = .x)),
+    tidied = map(fit, tidy),
+    glanced = map(fit, glance),
+    augmented = map(fit, augment)
+)
+
+sig_makes |> 
+  select(tidied) |> 
+  unnest(tidied) |>
+  filter(p.value <= 0.05) |>
+  arrange(estimate) |>
+  mutate(term = factor(term, levels = term)) |>
+  ggplot(aes(x = estimate, y = term, fill = term)) +
+  geom_col() +
+  scale_y_discrete(label = ~ str_replace_all(.x, c("make" = "", "\\(Intercept\\)" = "Aston Martin"))) +
+  theme(legend.position = "none") +
+  labs(title = "Estimated coefficients by car make", x = "Estimated coefficients", y = NULL)
+
+```
+Any other car make has an average price close enough to the mean price that it can't be said that the make alone has any effect on the price.
+
+### Tesla is driving up the prices of electric cars
+From @fig-significant-makes we see that the car make that has the highest effect on price is Tesla. 
+
+Since Tesla exclusively makes electric cars, the question is how this might affect a model's ability to predict the prices of that kind of vehicle.
+
+A vast majority, almost 40%, of the electric cars in the data set are Teslas. They might not be the most expensive (see @fig-electric-cars-2), but the electric car makes with higher average prices are not nearly as well represented in the data.
+
+```{r}
+#| label: fig-electric-cars
+#| fig-cap: "Proportions and average prices of electric cars by make"
+#| fig-subcap: 
+#|    - "Proportion of electric cars by make"
+#|    - "Average prices of electric cars by make"
+#| layout-ncol: 2
+#| column: page
+#| echo: false
+
+train_data_fuel <- train_data |> 
+  filter(fuel == "El")
+
+train_data_fuel |>
+  group_by(make) |>
+  summarize(n = n()) |>
+  mutate(freq = n / sum(n)) |>
+  arrange(freq) |>
+  mutate(make = factor(make, levels = make)) |>
+  ggplot(aes(x = freq, y = make, fill = make)) +
+  geom_col() + 
+  scale_x_continuous(labels = scales::percent) + 
+  labs(title = "Proportion of electric cars by make", x = "Proportion", y = NULL)
+
+train_data_fuel |>
+  group_by(make) |>
+  summarize(avg_price = mean(price)) |>
+  arrange(avg_price) |>
+  mutate(make = factor(make, levels = make)) |>
+  ggplot(aes(x = avg_price, y = make, fill = make)) +
+  geom_col() +
+  labs(title = "Average price of electric cars by make", x = "Average price", y = NULL)
+```
+
+
+
+```{r}
+#| label: fig-fuel-and-make
+#| fig-cap: "Confidence levels of coefficients for the fuel category, with and without taking the make category into account."
+#| echo: false
+
+ignore_make <- 
+  lm(price ~ fuel, data = train_data) |> tidy()
+
+account_for_make <- 
+  lm(price ~ fuel + make, data = train_data) |> tidy()
+
+both_models <- bind_rows(
+  ignore_make |> mutate(make = "ignore"),
+  account_for_make |> mutate(make = "account for make")
+) 
+
+both_models |>
+  filter(!str_detect(term, "make")) |>
+  ggplot(aes(estimate, term, color = make)) +
+  geom_errorbar(aes(
+    xmin = estimate - 1.96 * std.error, 
+    xmax = estimate + 1.96 * std.error),
+    alpha = .7) +
+  geom_point(size = 3) +
+  geom_vline(xintercept = 0, lty = 2, color = "gray50") +
+  scale_y_discrete(label = ~ str_replace_all(.x, c("fuel" = "", "\\(Intercept\\)" = "Bensin"))) +
+  labs(title = "Influence of make predictor on price estimates on fuel category", y = NULL, x = "Estimated prices")
+```
+
+``` {r}
+#| label: fig-price-make
+#| fig-cap: "Influence of make predictor on price estimates by fuel category"
+#| echo: false
+
+both_models |>
+  filter(!str_detect(term, "make")) |>
+  ggplot(aes(term, estimate, fill = make)) +
+  geom_col(position = "dodge") +
+  scale_x_discrete(label = ~ str_replace_all(.x, c("fuel" = "", "\\(Intercept\\)" = "Bensin"))) +
+  labs(title = "Influence of make predictor on price estimates by fuel category", y = "Estimated prices", x = NULL)
+
+```
+
+```{r}
+
+```
+```{r}
+#| label: fig-fuel-price-tesla-no-tesla
+#| fig-cap: "Average price by fuel type, with and without Teslas in the model."
+#| echo: false
+
+lm_fuel <-
+  train_data |>
+  nest() |>
+  mutate(
+    fit = map(data, ~ lm(price ~ fuel, data = .x)),
+    tidied = map(fit, tidy),
+    glanced = map(fit, glance),
+    augmented = map(fit, augment),
+    tesla = TRUE
+)
+
+lm_fuel_no_tesla <-
+  train_data |>
+  filter(make != "Tesla") |>
+  nest() |>
+  mutate(
+    fit = map(data, ~ lm(price ~ fuel, data = .x)),
+    tidied = map(fit, tidy),
+    glanced = map(fit, glance),
+    augmented = map(fit, augment),
+    tesla = FALSE
+)
+
+lm_fuel_all <- bind_rows(lm_fuel, lm_fuel_no_tesla)
+
+lm_fuel_all |> 
+  group_by(tesla) |>
+  select(tesla, tidied) |> unnest(tidied) |>
+  ggplot(aes(x = term, y = estimate, fill = tesla)) +
+  geom_col(position = "dodge") +
+  scale_x_discrete(label = ~ str_replace_all(.x, c("fuel" = "", "\\(Intercept\\)" = "Bensin"))) +
+  labs(title = "Average price by fuel", x = NULL, y = "Average price")
+
+
+```
+
 
 ## Discussion
 ### Legal and ethical issues regarding data mining
@@ -97,6 +300,7 @@ The directive, amended in 2019, works as an analog to the copyright laws, and pr
 ### Data analysis
 
 * Would new car price be a significant variable? We can only guess as we didn't include it.
+* Gathering the description data and performing textual analysis might give more insights. The car might be broken down, deregistered, or any other number of factors that affect the asking price but do not show up in the data.
 * Collect the same data over time to find patterns
 * Electric cars are underrepresented - what will that to to the data? <- Introduction?
 

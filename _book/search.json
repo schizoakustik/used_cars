@@ -1,60 +1,20 @@
 [
   {
-    "objectID": "theory.html",
-    "href": "theory.html",
-    "title": "2  Theory",
-    "section": "",
-    "text": "2.1 Statistical learning\nIn short, statistical learning is the process of using statistical methods and mathematical models to understand data (James et al., 2023, p. 1). This process can be used to predict values given a set of variables, or to gain a better understanding of how those variables relate to the wanted value, also called inference. Often, the goal might be both prediction and inference.\nGiven that we wish to predict the response value \\(Y\\) from one or more variables, or predictors, \\(X\\), this can be expressed in a general form as Equation 2.1.\n\\[ Y = f(X) + \\epsilon  \\tag{2.1}\\]\nHere, \\(f\\) is some kind of transformation made on \\(X\\) in order for it to help us estimate \\(Y\\), end \\(\\epsilon\\) is an error term which is unknown, and assumed to be normally distributed with a mean of 0. We need \\(\\epsilon\\) because our model will never be able to take into account for every little variable that might influence or prediction.\nOne of the simplest, yet most powerful, methods of statistical learning is linear regression.",
-    "crumbs": [
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Theory</span>"
-    ]
-  },
-  {
-    "objectID": "theory.html#linear-regression",
-    "href": "theory.html#linear-regression",
-    "title": "2  Theory",
-    "section": "2.2 Linear regression",
-    "text": "2.2 Linear regression\n\n2.2.1 Simple linear regression\nAt the heart of linear regression lies the equation of the straight line (Equation 2.2)\n\\[ y = b + mx \\tag{2.2}\\]\nwhere \\(b\\) denotes the intercept where the line crosses the y-axis, and \\(m\\) denotes the slope of the line.\nIn simple linear regression we assume that the relationship between the response variable \\(Y\\) and the independent variable \\(X\\) is approximately linear, which can be expressed as (Equation 2.3). (James et al., 2023, p. 61)\n\\[ Y \\approx \\beta_0 + \\beta_1 X \\tag{2.3}\\]\nHere, \\(\\beta_0\\) denotes the intercept and \\(\\beta_1\\) denotes the slope of the line. Using training data, we can estimate the coefficients \\(\\hat{\\beta_0}\\) and \\(\\hat{\\beta_1}\\) and predict a certain value of \\(Y\\) by computing\n\\[ \\hat{y} = \\hat{\\beta_0} + \\hat{\\beta_1} x.  \\tag{2.4}\\]\n\n2.2.1.1 Estimating coefficients\nThe coefficients can be estimated using a number of approaches, but the most common method is the least squares criterion.\nThe goal is to find values for \\(\\beta_0\\) and \\(\\beta_1\\) such that the difference between the observed response value and our predicted response value, the residual, is as small as possible. The ith residual \\(e_i\\) can be expressed as \\(e_i = y_i - \\hat{y}_i\\). Given \\(n\\) observations in our training data, the residual sum of squares (RSS) is defined as\n\\[ RSS = e^2_1 + e^2_2 + \\ldots + e^2_n,  \\tag{2.5}\\] or\n\\[ RSS = \\sum_{i = 1}^{n}(y_i - \\hat{y}_i)^2.  \\tag{2.6}\\]\nThe least squares method then chooses \\(\\beta_0\\) and \\(\\beta_1\\) to minimize the RSS.\n\n\n\n\n\n\n\n\nFigure 2.1: Linear regression on simulated data. The orange line shows the true relationship \\(f(X) = 3+5X\\), and the blue line is the least squares estimate for f(X) based on the generated data.\n\n\n\n\n\n\n\n2.2.1.2 Evaluating model performance\nTo assess how well a model fits the data, two measures are commonly used: the residual standard error (\\(RSE\\)), and the \\(R^2\\) statistic.\nIt is rarely the case that a models captures every thinkable variable that affects the outcome. Therefore, the error term \\(\\epsilon\\) from Equation 2.1 is present in our model. Equation 2.3 can be subsistuted for the general function \\(f\\), which gives us Equation 2.7:\n\\[ Y = \\beta_0 + \\beta_1 X + \\epsilon.  \\tag{2.7}\\]\n\n2.2.1.2.1 The residual standard error\nThe \\(RSE\\) is an estimate of the standard deviation of \\(\\epsilon\\) (James et al., 2023, p. 69) and is computed by\n\\[ RSE = \\sqrt{\\dfrac{1}{n - 2}RSS}.  \\tag{2.8}\\]\nIf the predicted values of the model are close to the observed values, the \\(RSE\\) will be small and the model fits the data well.\n\n\n2.2.1.2.2 The \\(R^2\\) statistic\nThe \\(RSE\\) is measured in the units of \\(Y\\). This makes interpreting what a good value of the \\(RSE\\) is hard. (James et al., 2023, p. 70). The \\(R^2\\) statistic, on the other hand, is a proportion, and as such always takes on a value between 0 and 1.\nThe \\(R^2\\) statistic describes how much of the total variance in the response \\(Y\\) that can be explained by using \\(X\\) as a predictor. The formula used is seen in Equation 2.9.\n\\[ R^2 = \\dfrac{TSS-RSS}{TSS} = 1 - \\dfrac{RSS}{TSS}  \\tag{2.9}\\]\n\\(TSS = \\sum{(y_i - \\bar{y})}\\) is the total sum of squares and RSS is defined in Equation 2.6. While \\(R^2\\) is independent of the units of \\(Y\\), it can still be hard to determine what constitutes a good value of \\(R^2\\). This depends on the problem at hand as different domains handle different kinds of data, with different properties and relationships.\n\n\n\n\n2.2.2 Multiple linear regression\nSo far we have been using a single predictor \\(X_1\\) to predict the response \\(Y\\). In multiple linear regression, additional predictors are added to form the model\n\\[ Y = \\beta_0 + \\beta_1 X_1 + \\beta_2 X_2 + \\ldots + \\beta_p X_p + \\epsilon  \\tag{2.10}\\]\nwhere \\(X_j\\) represents the jth predictor, and \\(\\beta_j\\) represents the effect of \\(X_j\\) on \\(Y\\), or, in other words, the average effect on \\(Y\\) on a one unit increase in \\(X_j\\), given that all other predictors remain fixed.\n\n2.2.2.1 Potential problems\nIn Introduction to Statistical Learning, James and co-authors list six of the most common potential problems when fitting linear regression models (James et al., 2023, p. 93). These are:\n\nNon-linearity of the response-predictor relationships.\nCorrelation of error terms.\nNon-constant variance of error terms.\nOutliers.\nHigh-leverage points.\nCollinearity.",
-    "crumbs": [
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Theory</span>"
-    ]
-  },
-  {
-    "objectID": "theory.html#evaluating-models",
-    "href": "theory.html#evaluating-models",
-    "title": "2  Theory",
-    "section": "2.3 Evaluating models",
-    "text": "2.3 Evaluating models\nThe theory behind evaluating model performance. Cross validation.\n\n2.3.1 Train/test data\nThe reason behind splitting data.\n\n\n2.3.2 Evaluation metrics\nStatistical methods, RMSE…",
-    "crumbs": [
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Theory</span>"
-    ]
-  },
-  {
-    "objectID": "theory.html#feature-selection",
-    "href": "theory.html#feature-selection",
-    "title": "2  Theory",
-    "section": "2.4 Feature selection",
-    "text": "2.4 Feature selection\nSignificance. Statistical methods vs. domain knowledge. (Hyndman, 2011)\n\n\n\n\nHyndman, R. J. (2011). Statistical tests for variable selection. https://robjhyndman.com/hyndsight/tests2/\n\n\nJames, G., Witten, D., Hastie, T., & Tibshirani, R. (2023). An introduction to statistical learning: With applications in r (2nd ed.). Stringer New York, NY.",
-    "crumbs": [
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Theory</span>"
-    ]
-  },
-  {
     "objectID": "results.html",
     "href": "results.html",
     "title": "4  Results and discussion",
     "section": "",
-    "text": "4.1 EDA\nggplot(data = df, aes(x = days_in_traffic, y = price)) + \n    geom_point(aes(col = fuel, size = hp), alpha = .5) + \n    scale_x_continuous()\n\n\n\n\n\n\n\nFigure 4.1: A plot\nfig &lt;- plot_ly(df, x = ~days_in_traffic, y = ~mileage, z = ~price, color = ~fuel, alpha = .75, type = \"scatter3d\", mode = \"markers\") |&gt; \n    add_markers() |&gt; \n    layout(title = \"Used cars\", scene = list(yaxis = list(type = \"log\", title = \"Mileage\")))\nfig",
+    "text": "4.1 EDA\nThe raw data was preprocessed as described in the Data Preprocessing section of the Theory chapter (-?sec-preprocess). Here we take a closer look at the data.",
     "crumbs": [
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>Results and discussion</span>"
     ]
   },
   {
-    "objectID": "results.html#eda",
-    "href": "results.html#eda",
+    "objectID": "results.html#sec-eda",
+    "href": "results.html#sec-eda",
     "title": "4  Results and discussion",
     "section": "",
-    "text": "4.1.1 Considerations regarding data",
+    "text": "Overview\n\n\n\n\n# A tibble: 7,535 × 18\n   id       make  model make_model fuel  gearbox mileage  year type  drive    hp\n   &lt;chr&gt;    &lt;fct&gt; &lt;fct&gt; &lt;fct&gt;      &lt;fct&gt; &lt;fct&gt;     &lt;int&gt; &lt;int&gt; &lt;fct&gt; &lt;fct&gt; &lt;int&gt;\n 1 1400504… Audi  A3    Audi A3    Bens… Manuell  207611  2005 Halv… Fyrh…   200\n 2 1400489… Skoda Octa… Skoda Oct… Dies… Manuell   21218  2014 Kombi Fyrh…   105\n 3 1400612… BMW   420   BMW 420    Dies… Automat   19586  2015 Halv… Tvåh…   184\n 4 1400546… Kia   Opti… Kia Optima Dies… Automat   23700  2012 Sedan Tvåh…   136\n 5 1400603… Ford  S-Max Ford S-Max Dies… Automat   20850  2012 Fami… Tvåh…   200\n 6 1400631… Volk… Golf  Volkswage… Bens… Automat   10840  2017 Kombi Fyrh…   180\n 7 1400643… Saab  9-3   Saab 9-3   Bens… Automat   26340  2006 Kombi Tvåh…   176\n 8 1400617… Merc… E     Mercedes-… Dies… Automat   55423  2006 Kombi Tvåh…   150\n 9 1400675… BMW   525   BMW 525    Bens… Automat   28557  2006 Kombi Tvåh…   218\n10 1400592… Audi  A6    Audi A6    Dies… Automat   24219  2013 Kombi Fyrh…   204\n# ℹ 7,525 more rows\n# ℹ 7 more variables: color &lt;fct&gt;, first_in_traffic &lt;date&gt;, region &lt;fct&gt;,\n#   price &lt;int&gt;, age &lt;dbl&gt;, days_in_traffic &lt;int&gt;, miles_per_day &lt;dbl&gt;\n\n\n\nTable 4.1: Overview of training data\n\n\n\nThe entire data set consists of 7 661 observations with 18 features each. Each observation is an ad for a used car.\n\n\nMissing data\nSeveral of the observations in the raw data had missing values in the price column. Those where filtered out at the very start as price is our target value.\nThere are also some 700 observations that are have missing values in the motorsize column. Most of these are electric cars (see Figure 4.1). I want to keep the electric cars in the data set so I don’t want to remove those observations all together.\nThere does seem to be some sort of relationship between motor size and price. (See Figure 4.2). Removing the column might have a negative impact on the model’s ability to predict prices, but keeping it leaves me with a whole lot of missing values, and issues with electric cars. One way might be to impute the column with the mean or median of the motor sizes, but since electric cars actually don’t have a motor size, that seems wrong.\nMy final decision was to remove the motorsize column.\n\n\n\n\n\n\n\n\nFigure 4.1: Proportion of missing motor size values by fuel type\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 4.2: Motor size vs. price with an added regression line.\n\n\n\n\n\n\n\nOther columns with missing data\nThree remaining columns have issing values. They are all categorical values and it doesn’t make sense to impute them with the most common values. Since there will be a maximum loss of 123 observations, the rows with the missing values will be removed.\n\n\nHandling uncommon values\nSome values in the make category were only present in a few observations. This increases the risk of having values that are only present in the training or test data sets. At least one make was present only in the single observation. Even when using a stratified split, that observation would end up in either the training or the test set.\nI decided to keep them in the data, but group them together under the “Other” name. The cutoff is set to be less than the number of columns in the data set, that is, 18.",
     "crumbs": [
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>Results and discussion</span>"
     ]
@@ -64,7 +24,7 @@
     "href": "results.html#results",
     "title": "4  Results and discussion",
     "section": "4.2 Results",
-    "text": "4.2 Results",
+    "text": "4.2 Results\n\nWhich car makes have a significant impact on the price?\nOf the 63 unique car makes in the original data set, 28 had 18 observations or fewer. As mentioned, these are grouped together under the “Other” name, which gives us 36 unique values for the make category. One question I wanted to ask was, which makes (if any) seem to have an impact on the asking price for the car? Figure 4.3 shows the estimated coefficients of the 20 car makes that have a statistically significant effect on the price.\n\n\n\n\n\n\n\n\nFigure 4.3: Estimated coefficients of car makes with a p-value &lt; 0.05\n\n\n\n\n\nAny other car make has an average price close enough to the mean price that it can’t be said that the make alone has any effect on the price.\n\n\nTesla is driving up the prices of electric cars\nFrom Figure 4.3 we see that the car make that has the highest effect on price is Tesla.\nSince Tesla exclusively makes electric cars, the question is how this might affect a model’s ability to predict the prices of that kind of vehicle.\nA vast majority, almost 40%, of the electric cars in the data set are Teslas. They might not be the most expensive (see Figure 4.4 (b)), but the electric car makes with higher average prices are not nearly as well represented in the data.\n\n\n\n\n\n\n\n\n\n\n\n(a) Proportion of electric cars by make\n\n\n\n\n\n\n\n\n\n\n\n(b) Average prices of electric cars by make\n\n\n\n\n\n\n\nFigure 4.4: Proportions and average prices of electric cars by make\n\n\n\n\n\n\n\n\n\n\n\nFigure 4.5: Confidence levels of coefficients for the fuel category, with and without taking the make category into account.\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 4.6: Influence of make predictor on price estimates by fuel category\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 4.7: Average price by fuel type, with and without Teslas in the model.",
     "crumbs": [
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>Results and discussion</span>"
     ]
@@ -74,7 +34,7 @@
     "href": "results.html#discussion",
     "title": "4  Results and discussion",
     "section": "4.3 Discussion",
-    "text": "4.3 Discussion\n\n4.3.1 Legal and ethical issues regarding data mining\nThe data behind this analysis was collected using an automated method, often called data mining or scraping.\nBlockets EULA (End User License Agreement) states the following regarding scraping their data (blocket.se, 2024):\n\nDu har inte rätt att kopiera, reproducera, publicera, ladda upp, skicka eller distribuera något material eller någon information från Webbplatsen utan föregående skriftligt tillstånd från Blocket. (…)\nAnvändning av automatiserade tjänster såsom robotar, spindlar, indexering eller liknande, samt andra metoder för systematisk användning av innehållet på Webbplatsen är inte tillåtet utan föregående skriftligt tillstånd från Blocket.\nAll otillåten användning medför ersättningsskyldighet. Den som avsiktligt eller genom grov oaktsamhet bryter mot lagen kan straffas med böter eller fängelse upp till två år och bli dömd att betala skadestånd.\n\nOr, in english, (my translation and emphasis):\n\nYou are not allowed to copy, reproduce, publish, upload, send or distribute any material or any information from the web site without prior written consent from Blocket. (…)\nUse of automated services such as robots, spiders, indexing or the like, and other methods for systematic use of the web site’s content is prohibited with prior written consent from Blocket.\nAny prohibited use comes with an obligation to compensate. Anyone who, knowingly or by gross negligence, breaks the law can be punished by fine or prison for up to two years, and be ordered to pay damages.\n\nIt is not clear from the text which law is referred to. The EULA also states that Blocket owns the immaterial rights to any material such as text, images, design and information meda available by using the site. This, then would be a question of copyright law. It is however not immediately clear that the contents scraped from the web site is such that it would fall under copyright law. 1\nSweden is however a member of the European Union, and in 1996 the European Council approved the Directive 96/9/EC of the European Parliament and of the Council of 11 March 1996 on the legal protection of databases, (European Union, 2019).2\nThe directive, amended in 2019, works as an analog to the copyright laws, and protects the rights of database creators and owners. This might be the law that is referred to in the Blocket EULA.\nShould probably write Blocket and ask them!\n\nDifference b/w copyrighted material such as images, and information in a database. Also difference b/w US and European law.\nEU sui generis law protects database owners but exceptions could be made for research. European Union (2019)\n\n\n\n4.3.2 Data analysis\n\nWould new car price be a significant variable? We can only guess as we didn’t include it.\nCollect the same data over time to find patterns\nElectric cars are underrepresented - what will that to to the data? &lt;- Introduction?\n\n\n\n4.3.3 Parameter selection\nStatistical methods vs. domain knowledge\n\n\n\n\nblocket.se. (2024). Användarvillkor. https://www.blocket.se/om/villkor/anvandarvillkor\n\n\nEuropean Union. (2019). Directive 96/9/EC of the european parliament and of the council of 11 march 1996 on the legal protection of databases. https://eur-lex.europa.eu/eli/dir/1996/9/oj/eng",
+    "text": "4.3 Discussion\n\nLegal and ethical issues regarding data mining\nThe data behind this analysis was collected using an automated method, often called data mining or scraping.\nBlockets EULA (End User License Agreement) states the following regarding scraping their data (blocket.se, 2024):\n\nDu har inte rätt att kopiera, reproducera, publicera, ladda upp, skicka eller distribuera något material eller någon information från Webbplatsen utan föregående skriftligt tillstånd från Blocket. (…)\nAnvändning av automatiserade tjänster såsom robotar, spindlar, indexering eller liknande, samt andra metoder för systematisk användning av innehållet på Webbplatsen är inte tillåtet utan föregående skriftligt tillstånd från Blocket.\nAll otillåten användning medför ersättningsskyldighet. Den som avsiktligt eller genom grov oaktsamhet bryter mot lagen kan straffas med böter eller fängelse upp till två år och bli dömd att betala skadestånd.\n\nOr, in english, (my translation and emphasis):\n\nYou are not allowed to copy, reproduce, publish, upload, send or distribute any material or any information from the web site without prior written consent from Blocket. (…)\nUse of automated services such as robots, spiders, indexing or the like, and other methods for systematic use of the web site’s content is prohibited with prior written consent from Blocket.\nAny prohibited use comes with an obligation to compensate. Anyone who, knowingly or by gross negligence, breaks the law can be punished by fine or prison for up to two years, and be ordered to pay damages.\n\nIt is not clear from the text which law is referred to. The EULA also states that Blocket owns the immaterial rights to any material such as text, images, design and information meda available by using the site. This, then would be a question of copyright law. It is however not immediately clear that the contents scraped from the web site is such that it would fall under copyright law. 1\nSweden is however a member of the European Union, and in 1996 the European Council approved the Directive 96/9/EC of the European Parliament and of the Council of 11 March 1996 on the legal protection of databases, (European Union, 2019).2\nThe directive, amended in 2019, works as an analog to the copyright laws, and protects the rights of database creators and owners. This might be the law that is referred to in the Blocket EULA.\nShould probably write Blocket and ask them!\n\nDifference b/w copyrighted material such as images, and information in a database. Also difference b/w US and European law.\nEU sui generis law protects database owners but exceptions could be made for research. European Union (2019)\n\n\n\nData analysis\n\nWould new car price be a significant variable? We can only guess as we didn’t include it.\nGathering the description data and performing textual analysis might give more insights. The car might be broken down, deregistered, or any other number of factors that affect the asking price but do not show up in the data.\nCollect the same data over time to find patterns\nElectric cars are underrepresented - what will that to to the data? &lt;- Introduction?\n\n\n\nParameter selection\nStatistical methods vs. domain knowledge\n\n\n\n\nblocket.se. (2024). Användarvillkor. https://www.blocket.se/om/villkor/anvandarvillkor\n\n\nEuropean Union. (2019). Directive 96/9/EC of the european parliament and of the council of 11 march 1996 on the legal protection of databases. https://eur-lex.europa.eu/eli/dir/1996/9/oj/eng",
     "crumbs": [
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>Results and discussion</span>"
     ]
@@ -87,56 +47,6 @@
     "text": "citation needed↩︎\nCheck how it actually works↩︎",
     "crumbs": [
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>Results and discussion</span>"
-    ]
-  },
-  {
-    "objectID": "intro.html",
-    "href": "intro.html",
-    "title": "1  Introduction",
-    "section": "",
-    "text": "1.1 Tasks and research questions",
-    "crumbs": [
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Introduction</span>"
-    ]
-  },
-  {
-    "objectID": "intro.html#tasks-and-research-questions",
-    "href": "intro.html#tasks-and-research-questions",
-    "title": "1  Introduction",
-    "section": "",
-    "text": "Fit a regression model to predict the price of a used car given certain features\n\nCollect data on used cars for sale\n\nWhich features, if any, contribute to the predicted price?\n\nUsing statistical methods and domain research, select and possibly transform the most significant features in the data set\n\nUsing cross validation, fit and evaluate a number of models and select the best performing model.\nCreate a simple application to enter some data about a car and predict the price. (If there is time.)",
-    "crumbs": [
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Introduction</span>"
-    ]
-  },
-  {
-    "objectID": "method.html",
-    "href": "method.html",
-    "title": "3  Method",
-    "section": "",
-    "text": "3.1 Data collection\nHow we collected the data and why we selected the parameters that we did. Did not collect price for new car.",
-    "crumbs": [
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Method</span>"
-    ]
-  },
-  {
-    "objectID": "method.html#training-and-evaluating-models",
-    "href": "method.html#training-and-evaluating-models",
-    "title": "3  Method",
-    "section": "3.2 Training and evaluating models",
-    "text": "3.2 Training and evaluating models\n\nMark, Model and Mark/Model?\nMotor size does not make sense for electric cars. We need to decide whether to drop the column, or drop the electric cars. Start by looking at a model with the electric cars dropped to see if the motor size is significant for the remaining observations.\n\n\n3.2.1 Parameter selection",
-    "crumbs": [
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Method</span>"
-    ]
-  },
-  {
-    "objectID": "references.html",
-    "href": "references.html",
-    "title": "References",
-    "section": "",
-    "text": "blocket.se. (2024). Användarvillkor. https://www.blocket.se/om/villkor/anvandarvillkor\n\n\nEuropean Union. (2019). Directive 96/9/EC of the european parliament\nand of the council of 11 march 1996 on the legal protection of\ndatabases. https://eur-lex.europa.eu/eli/dir/1996/9/oj/eng\n\n\nHyndman, R. J. (2011). Statistical tests for variable\nselection. https://robjhyndman.com/hyndsight/tests2/\n\n\nJames, G., Witten, D., Hastie, T., & Tibshirani, R. (2023). An\nintroduction to statistical learning: With applications in r (2nd\ned.). Stringer New York, NY.",
-    "crumbs": [
-      "References"
     ]
   }
 ]

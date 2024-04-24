@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Predicting used car prices with linear regression in R - 4&nbsp; Results and discussion</title>
+<title>Statistical inference on used car data using linear regression in R - 4&nbsp; Results and discussion</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,40 +19,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 /* CSS for citations */
 div.csl-bib-body { }
@@ -151,7 +117,7 @@ div.csl-indent {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./">Predicting used car prices with linear regression in R</a> 
+      <a href="./">Statistical inference on used car data using linear regression in R</a> 
     </div>
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
@@ -219,22 +185,29 @@ div.csl-indent {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#eda" id="toc-eda" class="nav-link active" data-scroll-target="#eda"><span class="header-section-number">4.1</span> EDA</a>
+  <li><a href="#sec-eda" id="toc-sec-eda" class="nav-link active" data-scroll-target="#sec-eda"><span class="header-section-number">4.1</span> EDA</a>
   <ul class="collapse">
-  <li><a href="#considerations-regarding-data" id="toc-considerations-regarding-data" class="nav-link" data-scroll-target="#considerations-regarding-data"><span class="header-section-number">4.1.1</span> Considerations regarding data</a></li>
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#missing-data" id="toc-missing-data" class="nav-link" data-scroll-target="#missing-data">Missing data</a></li>
+  <li><a href="#other-columns-with-missing-data" id="toc-other-columns-with-missing-data" class="nav-link" data-scroll-target="#other-columns-with-missing-data">Other columns with missing data</a></li>
+  <li><a href="#handling-uncommon-values" id="toc-handling-uncommon-values" class="nav-link" data-scroll-target="#handling-uncommon-values">Handling uncommon values</a></li>
   </ul></li>
-  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results"><span class="header-section-number">4.2</span> Results</a></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results"><span class="header-section-number">4.2</span> Results</a>
+  <ul class="collapse">
+  <li><a href="#which-car-makes-have-a-significant-impact-on-the-price" id="toc-which-car-makes-have-a-significant-impact-on-the-price" class="nav-link" data-scroll-target="#which-car-makes-have-a-significant-impact-on-the-price">Which car makes have a significant impact on the price?</a></li>
+  <li><a href="#tesla-is-driving-up-the-prices-of-electric-cars" id="toc-tesla-is-driving-up-the-prices-of-electric-cars" class="nav-link" data-scroll-target="#tesla-is-driving-up-the-prices-of-electric-cars">Tesla is driving up the prices of electric cars</a></li>
+  </ul></li>
   <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion"><span class="header-section-number">4.3</span> Discussion</a>
   <ul class="collapse">
-  <li><a href="#legal-and-ethical-issues-regarding-data-mining" id="toc-legal-and-ethical-issues-regarding-data-mining" class="nav-link" data-scroll-target="#legal-and-ethical-issues-regarding-data-mining"><span class="header-section-number">4.3.1</span> Legal and ethical issues regarding data mining</a></li>
-  <li><a href="#data-analysis" id="toc-data-analysis" class="nav-link" data-scroll-target="#data-analysis"><span class="header-section-number">4.3.2</span> Data analysis</a></li>
-  <li><a href="#parameter-selection" id="toc-parameter-selection" class="nav-link" data-scroll-target="#parameter-selection"><span class="header-section-number">4.3.3</span> Parameter selection</a></li>
+  <li><a href="#legal-and-ethical-issues-regarding-data-mining" id="toc-legal-and-ethical-issues-regarding-data-mining" class="nav-link" data-scroll-target="#legal-and-ethical-issues-regarding-data-mining">Legal and ethical issues regarding data mining</a></li>
+  <li><a href="#data-analysis" id="toc-data-analysis" class="nav-link" data-scroll-target="#data-analysis">Data analysis</a></li>
+  <li><a href="#parameter-selection" id="toc-parameter-selection" class="nav-link" data-scroll-target="#parameter-selection">Parameter selection</a></li>
   </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content page-columns page-full" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -255,42 +228,194 @@ div.csl-indent {
 </header>
 
 
-<section id="eda" class="level2" data-number="4.1">
-<h2 data-number="4.1" class="anchored" data-anchor-id="eda"><span class="header-section-number">4.1</span> EDA</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> df, <span class="fu">aes</span>(<span class="at">x =</span> days_in_traffic, <span class="at">y =</span> price)) <span class="sc">+</span> </span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">col =</span> fuel, <span class="at">size =</span> hp), <span class="at">alpha =</span> .<span class="dv">5</span>) <span class="sc">+</span> </span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div id="fig-plot" class="quarto-figure quarto-figure-center quarto-float anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="results_files/figure-html/fig-plot-1.png" class="img-fluid figure-img" width="672">
+<section id="sec-eda" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="sec-eda"><span class="header-section-number">4.1</span> EDA</h2>
+<p>The raw data was preprocessed as described in the Data Preprocessing section of the Theory chapter (-<span class="quarto-unresolved-ref">?sec-preprocess</span>). Here we take a closer look at the data.</p>
+<section id="overview" class="level3">
+<h3 class="anchored" data-anchor-id="overview">Overview</h3>
+<div id="tbl-data-overview" class="cell quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<div aria-describedby="tbl-data-overview-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 7,535 × 18
+   id       make  model make_model fuel  gearbox mileage  year type  drive    hp
+   &lt;chr&gt;    &lt;fct&gt; &lt;fct&gt; &lt;fct&gt;      &lt;fct&gt; &lt;fct&gt;     &lt;int&gt; &lt;int&gt; &lt;fct&gt; &lt;fct&gt; &lt;int&gt;
+ 1 1400504… Audi  A3    Audi A3    Bens… Manuell  207611  2005 Halv… Fyrh…   200
+ 2 1400489… Skoda Octa… Skoda Oct… Dies… Manuell   21218  2014 Kombi Fyrh…   105
+ 3 1400612… BMW   420   BMW 420    Dies… Automat   19586  2015 Halv… Tvåh…   184
+ 4 1400546… Kia   Opti… Kia Optima Dies… Automat   23700  2012 Sedan Tvåh…   136
+ 5 1400603… Ford  S-Max Ford S-Max Dies… Automat   20850  2012 Fami… Tvåh…   200
+ 6 1400631… Volk… Golf  Volkswage… Bens… Automat   10840  2017 Kombi Fyrh…   180
+ 7 1400643… Saab  9-3   Saab 9-3   Bens… Automat   26340  2006 Kombi Tvåh…   176
+ 8 1400617… Merc… E     Mercedes-… Dies… Automat   55423  2006 Kombi Tvåh…   150
+ 9 1400675… BMW   525   BMW 525    Bens… Automat   28557  2006 Kombi Tvåh…   218
+10 1400592… Audi  A6    Audi A6    Dies… Automat   24219  2013 Kombi Fyrh…   204
+# ℹ 7,525 more rows
+# ℹ 7 more variables: color &lt;fct&gt;, first_in_traffic &lt;date&gt;, region &lt;fct&gt;,
+#   price &lt;int&gt;, age &lt;dbl&gt;, days_in_traffic &lt;int&gt;, miles_per_day &lt;dbl&gt;</code></pre>
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.1: A plot
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-tbl" id="tbl-data-overview-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4.1: Overview of training data
+</figcaption>
+</figure>
+</div>
+<p>The entire data set consists of 7 661 observations with 18 features each. Each observation is an ad for a used car.</p>
+</section>
+<section id="missing-data" class="level3">
+<h3 class="anchored" data-anchor-id="missing-data">Missing data</h3>
+<p>Several of the observations in the raw data had missing values in the <code>price</code> column. Those where filtered out at the very start as <code>price</code> is our target value.</p>
+<p>There are also some 700 observations that are have missing values in the <code>motorsize</code> column. Most of these are electric cars (see <a href="#fig-missing-motorsize" class="quarto-xref">Figure&nbsp;<span>4.1</span></a>). I want to keep the electric cars in the data set so I don’t want to remove those observations all together.</p>
+<p>There does seem to be some sort of relationship between motor size and price. (See <a href="#fig-motorsize-vs-price" class="quarto-xref">Figure&nbsp;<span>4.2</span></a>). Removing the column might have a negative impact on the model’s ability to predict prices, but keeping it leaves me with a whole lot of missing values, and issues with electric cars. One way might be to impute the column with the mean or median of the motor sizes, but since electric cars actually don’t have a motor size, that seems wrong.</p>
+<p>My final decision was to remove the <code>motorsize</code> column.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-missing-motorsize" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-missing-motorsize-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="results_files/figure-html/fig-missing-motorsize-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-missing-motorsize-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.1: Proportion of missing motor size values by fuel type
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fig <span class="ot">&lt;-</span> <span class="fu">plot_ly</span>(df, <span class="at">x =</span> <span class="sc">~</span>days_in_traffic, <span class="at">y =</span> <span class="sc">~</span>mileage, <span class="at">z =</span> <span class="sc">~</span>price, <span class="at">color =</span> <span class="sc">~</span>fuel, <span class="at">alpha =</span> .<span class="dv">75</span>, <span class="at">type =</span> <span class="st">"scatter3d"</span>, <span class="at">mode =</span> <span class="st">"markers"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">add_markers</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">layout</span>(<span class="at">title =</span> <span class="st">"Used cars"</span>, <span class="at">scene =</span> <span class="fu">list</span>(<span class="at">yaxis =</span> <span class="fu">list</span>(<span class="at">type =</span> <span class="st">"log"</span>, <span class="at">title =</span> <span class="st">"Mileage"</span>)))</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>fig</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="fig-motorsize-vs-price" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-motorsize-vs-price-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="results_files/figure-html/fig-motorsize-vs-price-1.png" class="img-fluid figure-img" width="672">
 </div>
-<section id="considerations-regarding-data" class="level3" data-number="4.1.1">
-<h3 data-number="4.1.1" class="anchored" data-anchor-id="considerations-regarding-data"><span class="header-section-number">4.1.1</span> Considerations regarding data</h3>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-motorsize-vs-price-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.2: Motor size vs.&nbsp;price with an added regression line.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="other-columns-with-missing-data" class="level3">
+<h3 class="anchored" data-anchor-id="other-columns-with-missing-data">Other columns with missing data</h3>
+<p>Three remaining columns have issing values. They are all categorical values and it doesn’t make sense to impute them with the most common values. Since there will be a maximum loss of 123 observations, the rows with the missing values will be removed.</p>
+</section>
+<section id="handling-uncommon-values" class="level3">
+<h3 class="anchored" data-anchor-id="handling-uncommon-values">Handling uncommon values</h3>
+<p>Some values in the <code>make</code> category were only present in a few observations. This increases the risk of having values that are only present in the training or test data sets. At least one make was present only in the single observation. Even when using a stratified split, that observation would end up in either the training or the test set.</p>
+<p>I decided to keep them in the data, but group them together under the “Other” name. The cutoff is set to be less than the number of columns in the data set, that is, 18.</p>
 </section>
 </section>
-<section id="results" class="level2" data-number="4.2">
+<section id="results" class="level2 page-columns page-full" data-number="4.2">
 <h2 data-number="4.2" class="anchored" data-anchor-id="results"><span class="header-section-number">4.2</span> Results</h2>
+<section id="which-car-makes-have-a-significant-impact-on-the-price" class="level3">
+<h3 class="anchored" data-anchor-id="which-car-makes-have-a-significant-impact-on-the-price">Which car makes have a significant impact on the price?</h3>
+<p>Of the 63 unique car makes in the original data set, 28 had 18 observations or fewer. As mentioned, these are grouped together under the “Other” name, which gives us 36 unique values for the <code>make</code> category. One question I wanted to ask was, which makes (if any) seem to have an impact on the asking price for the car? <a href="#fig-significant-makes" class="quarto-xref">Figure&nbsp;<span>4.3</span></a> shows the estimated coefficients of the 20 car makes that have a statistically significant effect on the price.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-significant-makes" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-significant-makes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="results_files/figure-html/fig-significant-makes-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-significant-makes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.3: Estimated coefficients of car makes with a p-value &lt; 0.05
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Any other car make has an average price close enough to the mean price that it can’t be said that the make alone has any effect on the price.</p>
+</section>
+<section id="tesla-is-driving-up-the-prices-of-electric-cars" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="tesla-is-driving-up-the-prices-of-electric-cars">Tesla is driving up the prices of electric cars</h3>
+<p>From <a href="#fig-significant-makes" class="quarto-xref">Figure&nbsp;<span>4.3</span></a> we see that the car make that has the highest effect on price is Tesla.</p>
+<p>Since Tesla exclusively makes electric cars, the question is how this might affect a model’s ability to predict the prices of that kind of vehicle.</p>
+<p>A vast majority, almost 40%, of the electric cars in the data set are Teslas. They might not be the most expensive (see <a href="#fig-electric-cars-2" class="quarto-xref">Figure&nbsp;<span>4.4 (b)</span></a>), but the electric car makes with higher average prices are not nearly as well represented in the data.</p>
+<div id="fig-electric-cars" class="quarto-layout-panel page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-electric-cars-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
+<div class="quarto-layout-row page-full">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell page-columns page-full" data-ref-parent="fig-electric-cars" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-electric-cars-1" class="quarto-figure quarto-figure-center quarto-float anchored page-columns page-full">
+<figure class="quarto-float quarto-subfloat-fig figure page-columns page-full">
+<div aria-describedby="fig-electric-cars-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
+<img src="results_files/figure-html/fig-electric-cars-1.png" class="img-fluid figure-img column-page" data-ref-parent="fig-electric-cars" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-electric-cars-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Proportion of electric cars by make
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell page-columns page-full" data-ref-parent="fig-electric-cars" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-electric-cars-2" class="quarto-figure quarto-figure-center quarto-float anchored page-columns page-full">
+<figure class="quarto-float quarto-subfloat-fig figure page-columns page-full">
+<div aria-describedby="fig-electric-cars-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
+<img src="results_files/figure-html/fig-electric-cars-2.png" class="img-fluid figure-img column-page" data-ref-parent="fig-electric-cars" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-electric-cars-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) Average prices of electric cars by make
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-electric-cars-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.4: Proportions and average prices of electric cars by make
+</figcaption>
+</figure>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-fuel-and-make" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fuel-and-make-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="results_files/figure-html/fig-fuel-and-make-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fuel-and-make-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.5: Confidence levels of coefficients for the fuel category, with and without taking the make category into account.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-price-make" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-price-make-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="results_files/figure-html/fig-price-make-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-price-make-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.6: Influence of make predictor on price estimates by fuel category
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-fuel-price-tesla-no-tesla" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fuel-price-tesla-no-tesla-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="results_files/figure-html/fig-fuel-price-tesla-no-tesla-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fuel-price-tesla-no-tesla-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.7: Average price by fuel type, with and without Teslas in the model.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
 </section>
 <section id="discussion" class="level2" data-number="4.3">
 <h2 data-number="4.3" class="anchored" data-anchor-id="discussion"><span class="header-section-number">4.3</span> Discussion</h2>
-<section id="legal-and-ethical-issues-regarding-data-mining" class="level3" data-number="4.3.1">
-<h3 data-number="4.3.1" class="anchored" data-anchor-id="legal-and-ethical-issues-regarding-data-mining"><span class="header-section-number">4.3.1</span> Legal and ethical issues regarding data mining</h3>
+<section id="legal-and-ethical-issues-regarding-data-mining" class="level3">
+<h3 class="anchored" data-anchor-id="legal-and-ethical-issues-regarding-data-mining">Legal and ethical issues regarding data mining</h3>
 <p>The data behind this analysis was collected using an automated method, often called <em>data mining</em> or <em>scraping</em>.</p>
 <p>Blockets EULA (End User License Agreement) states the following regarding scraping their data <span class="citation" data-cites="blocket_eula">(<a href="references.html#ref-blocket_eula" role="doc-biblioref">blocket.se, 2024</a>)</span>:</p>
 <blockquote class="blockquote">
@@ -313,16 +438,17 @@ Figure&nbsp;4.1: A plot
 <li>EU <em>sui generis</em> law protects database owners but exceptions could be made for research. <span class="citation" data-cites="eu_dir96/9">European Union (<a href="references.html#ref-eu_dir96/9" role="doc-biblioref">2019</a>)</span></li>
 </ul>
 </section>
-<section id="data-analysis" class="level3" data-number="4.3.2">
-<h3 data-number="4.3.2" class="anchored" data-anchor-id="data-analysis"><span class="header-section-number">4.3.2</span> Data analysis</h3>
+<section id="data-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="data-analysis">Data analysis</h3>
 <ul>
 <li>Would new car price be a significant variable? We can only guess as we didn’t include it.</li>
+<li>Gathering the description data and performing textual analysis might give more insights. The car might be broken down, deregistered, or any other number of factors that affect the asking price but do not show up in the data.</li>
 <li>Collect the same data over time to find patterns</li>
 <li>Electric cars are underrepresented - what will that to to the data? &lt;- Introduction?</li>
 </ul>
 </section>
-<section id="parameter-selection" class="level3" data-number="4.3.3">
-<h3 data-number="4.3.3" class="anchored" data-anchor-id="parameter-selection"><span class="header-section-number">4.3.3</span> Parameter selection</h3>
+<section id="parameter-selection" class="level3">
+<h3 class="anchored" data-anchor-id="parameter-selection">Parameter selection</h3>
 <p>Statistical methods vs.&nbsp;domain knowledge</p>
 
 
