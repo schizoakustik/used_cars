@@ -1,0 +1,240 @@
+
+```{r}
+#| label: theory-setup
+#| include: false
+
+library(tidyverse)
+library(plotly)
+library(pracma)
+```
+
+# Theory
+
+## Statistical learning
+
+In short, statistical learning is the process of using statistical methods and mathematical models to understand data [@islr, p. 1]. This process can be used to predict values given a set of variables, or to gain a better understanding of how those variables relate to the wanted value, also called *inference*. Often, the goal might be both prediction and inference.
+
+Given that we wish to predict the response value $Y$ from one or more variables, or predictors, $X$, this can be expressed in a general form as @eq-rel.
+
+$$ Y = f(X) + \epsilon $$ {#eq-rel}
+
+Here, $f$ is some kind of transformation made on $X$ in order for it to help us estimate $Y$, end $\epsilon$ is an *error term* which is unknown, and assumed to be normally distributed with a mean of 0. We need $\epsilon$ because our model will never be able to take into account for every little variable that might influence or prediction.
+
+One of the simplest, yet most powerful, methods of statistical learning is *linear regression*.
+
+## Linear regression
+
+### Simple linear regression
+
+At the heart of linear regression lies the equation of the straight line (@eq-line)
+
+$$ y = b + mx$$ {#eq-line}
+
+where $b$ denotes the *intercept* where the line crosses the y-axis, and $m$ denotes the *slope* of the line.
+
+In simple linear regression we assume that the relationship between the response variable $Y$ and the independent variable $X$ is approximately linear, which can be expressed as (@eq-linreg-1). [@islr, p. 61]
+
+$$ Y \approx \beta_0 + \beta_1 X$$ {#eq-linreg-1}
+
+Here, $\beta_0$ denotes the intercept and $\beta_1$ denotes the slope of the line. Using training data, we can estimate the *coefficients* $\hat{\beta_0}$ and $\hat{\beta_1}$ and predict a certain value of $Y$ by computing 
+
+$$ \hat{y} = \hat{\beta_0} + \hat{\beta_1} x. $$ {#eq-linreg-2}
+
+#### Estimating coefficients
+
+The coefficients can be estimated using a number of approaches, but the most common method is the *least squares* criterion.
+
+The goal is to find values for $\beta_0$ and $\beta_1$ such that the difference between the observed response value and our predicted response value, the *residual*, is as small as possible. The *i*th residual $e_i$ can be expressed as $e_i = y_i - \hat{y}_i$. Given $n$ observations in our training data, the *residual sum of squares* (RSS) is defined as
+
+$$ RSS = e^2_1 + e^2_2 + \ldots + e^2_n, $$ {#eq-rss-1} or
+
+$$ RSS = \sum_{i = 1}^{n}(y_i - \hat{y}_i)^2. $$ {#eq-rss-2}
+
+The least squares method then chooses $\beta_0$ and $\beta_1$ to minimize the RSS.
+
+```{r}
+#| echo: false
+#| label: fig-linreg-1
+#| fig-cap: "Linear regression on simulated data. The orange line shows the true relationship $f(X) = 3+5X$, and the blue line is the least squares estimate for f(X) based on the generated data."
+
+
+set.seed(42)
+
+x <- runif(100, min = -2, max = 2)
+e <- rnorm(100, mean = 0, sd = 5)
+y <- 3 + 5 * x + e
+
+ggplot(mapping = aes(x = x, y = y)) + 
+    geom_point(col = "#333333") +
+    geom_smooth(
+      method = "lm", 
+      formula = y ~ x,
+      alpha = .5, 
+      linewidth = 1, 
+      se = FALSE, 
+      col = "#0072B2") +
+    geom_line(
+      aes(x = x, y = 3 + 5 * x),
+      linewidth = 1, 
+      alpha = .5, 
+      col = "#D55E00") +
+    theme_bw()
+```
+#### Evaluating model performance
+
+To assess how well a model fits the data, two measures are commonly used: the *residual standard error* ($RSE$), and the $R^2$ statistic.
+
+It is rarely the case that a models captures every thinkable variable that affects the outcome. Therefore, the error term $\epsilon$ from @eq-rel is present in our model. @eq-linreg-1 can be subsistuted for the general function $f$, which gives us @eq-linreg-3:
+
+$$ Y = \beta_0 + \beta_1 X + \epsilon. $$ {#eq-linreg-3}
+
+##### The residual standard error
+
+The $RSE$ is an estimate of the standard deviation of $\epsilon$ [@islr, p. 69] and is computed by
+
+$$ RSE = \sqrt{\dfrac{1}{n - 2}RSS}. $$ {#eq-rse}
+
+If the predicted values of the model are close to the observed values, the $RSE$ will be small and the model fits the data well.
+
+The $RSE$ can also be used to find out if there is a relationship between the predictor and the outcome. 
+
+We can perform a hypothesis test with $H_0: \beta_1 = 0$ against $H_a: \beta_1 \neq 0$ to determine if the coefficient value is sufficiently far from $0$. 
+
+By calculating the *t*-statistic
+
+$$ t = \dfrac{\beta_1-0}{SE(\hat{\beta}_1)} $$ {#eq-t-stat}
+
+we can find the probability of finding this value in the *t*-distribution. This probability is the *p*-value, and a small enough *p*-value, based on our chosen confidence level, might lead us to reject the null hypothesis that there is no association between the predictor and the response.
+
+##### The $R^2$ statistic
+
+The $RSE$ is measured in the units of $Y$. This makes it hard to interpret what a good value of the $RSE$ would be. [@islr, p. 70]. The $R^2$ statistic, on the other hand, is a *proportion*, and as such always takes on a value between 0 and 1.
+
+The $R^2$ statistic describes how much of the total variance in the response $Y$ that can be explained by using $X$ as a predictor. The formula used is seen in @eq-r2.
+
+$$ R^2 = \dfrac{TSS-RSS}{TSS} = 1 - \dfrac{RSS}{TSS} $$ {#eq-r2}
+
+$TSS = \sum{(y_i - \bar{y})}$ is the *total sum of squares* and RSS is defined in @eq-rss-2. While $R^2$ is independent of the units of $Y$, it can still be hard to determine what constitutes a good value of $R^2$. This depends on the problem at hand as different domains handle different kinds of data, with different properties and relationships.
+
+### Multiple linear regression
+So far we have been using a single predictor $X_1$ to predict the response $Y$. In *multiple linear regression*, additional predictors are added to form the model
+
+$$ Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \ldots + \beta_p X_p + \epsilon $$ {#eq-multi-linreg-1}
+
+where $X_j$ represents the *j*th predictor, and $\beta_j$ represents the effect of $X_j$ on $Y$, or, in other words, the *average* effect on $Y$ on a one unit increase in $X_j$, given that *all other predictors remain fixed*.
+
+The coefficients $\beta_0, \beta_1, \ldots, \beta_p$ are estimated in the same way as in simple linear regression, using the least squares method.
+
+```{r}
+#| label: fig-linreg-2
+#| fig-cap: "Linear regression with two predictors. The one-dimensional line becomes a two-dimensional plane."
+#| echo: false
+#| eval: false
+set.seed(42)
+
+# Simulate data
+e <- rnorm(100, mean = 0, sd = 5)
+df <- tibble(
+  x1 = runif(100, min = -2, max = 2), 
+  x2 = runif(100, min = -2, max = 2),
+  y = 3 + 5 * x1 + 1.3 * x2 + e)
+
+# Fit model
+model <- lm(y ~ x1 + x2, data = df)
+
+# Add predictions to data frame
+df <- df |> mutate(pred = predict(model, df))
+
+# Plot model
+mesh_size <- .2
+margin <- 0
+
+x_min <- min(df$x1) - margin
+x_max <- max(df$x1) - margin
+y_min <- min(df$x2) - margin
+y_max <- max(df$x2) - margin
+
+xrange <- seq(x_min, x_max, mesh_size)
+yrange <- seq(y_min, y_max, mesh_size)
+
+xy <- meshgrid(xrange, yrange)
+xx <- xy$X
+yy <- xy$Y
+
+dim_val <- dim(xx)
+
+xx1 <- matrix(xx, length(xx), 1)
+yy1 <- matrix(yy, length(yy), 1)
+
+final <- tibble(x1 = xx1[, 1], x2 = yy1[, 1])
+
+pred <- model |> predict(final)
+pred_mtx <- matrix(pred, dim_val[1], dim_val[2])
+
+plot_ly(df, x = ~ x1, y = ~ x2, z = ~ y) |> 
+  add_markers(size = 1) |>
+  add_surface(x = xrange, y = yrange, z = pred_mtx, type = "mesh3d")
+```
+#### The $F$-statistic
+
+To find out if any of our predictors actually affect the response variable, we can perform a *hypothesis test*. Our null hypothesis $H_0$ is that none of the predictors are related to the outcome:
+
+$$ H_0: \beta_1 = \beta_2 = \cdots = \beta_p = 0 $$
+
+which we test against the alternative hypothesis $H_a$
+
+$$ H_a: \text{at least one } \beta_j \text{ is non-zero.} $$
+
+To perform the test, we compute the *F-statistic*,
+
+$$ F = \dfrac{(TSS-RSS)/p}{RSS/(n-p-1).} $$ {#eq-f-stat}
+
+If $H_0$ is true, the expected value of the $F$-statistic is close to $1$. If the alternative hypothesis is true, we expect $F$ to be greater than $1$.
+
+#### Variable selection
+The $F$-statistic tells us if at least one of the predictors are associated with the response variable, but it cannot tell us which this or these are. 
+
+We could look at the *p*-values of the individual variables, but if we have a lot of predictors, the probability of finding *p*-values below 0.05 by chance increases.
+
+Me might try out models with different combinations of predictors and choose the one with the best metrics, but this can quickly get complicated. For a data set with $p$ predictors we can make $2^p$ combinations.
+
+Instead, three different approaches are commonly used: *forward*, *backward*, and *mixed selection*. The idea is to start with either no predictors (forward and mixed selection) or all predictors (backward selection), and then pick the predictor that results in the lowest RSS, och remove the predictor with the highest *p-*value.
+
+The use of statistical methods for variable selection is not uncontroversial. Rob J Hyndman writes on his blog that
+
+> [s]tatistical significance is not usually a good basis for determining whether a variable should be included in a model, despite the fact that many people who should know better use them for exactly this purpose. [@hyndman]
+
+#### Potential problems
+
+In *Introduction to Statistical Learning*, James and co-authors list six of the most common potential problems when fitting linear regression models [@islr, p. 93]. These are:
+
+1. Non-linearity of the response-predictor relationships
+2. Correlation of error terms
+3. Non-constant variance of error terms
+4. Outliers
+5. High-leverage points
+6. Collinearity
+
+##### Non-linearity of the response-predictor relationships
+The linear regression method assumes a linear relationship between predictors and response. If this is not the case, the predictions and conclusions drawn from the data are suspect. Non-linear transformations of the predictors such as squaring and taking logarithms might be a solution.
+
+##### Correlation of error terms
+When observations in the data share features that are not among the predictors, the error terms might be correlated, which leads to confidence intervals that are too narrow. Good experimental design is key.
+
+##### Non-constant variance of error terms
+If the variance of the error terms are related to the value of the response, we are dealing with *heteroscedasticity*. One solution is to transform the response variable with a concave function to regulate larger response values harder.
+
+##### Outliers
+Outliers are values in the training data that differ a lot from the predicted values. An outlier might be a result of faulty data, but can also be a sign of missing predictors.
+
+##### High-leverage points
+If an outlier is defined by having an unusual $y_i$-value, a high-leverage point is defined by having an unusual $x_i$-value. They can be a bit tricky to identify i multiple linear models.
+
+##### Collinearity
+Having two, or more, predictors that are correlated results in collinearity or multicollinearity, respectively. Collinearity makes it harder to determine the affect of the individual predictors, and might lead to reduced power of the hypothesis test that $\beta_j = 0$. The *variance inflation factor*, VIF, is the ratio of the variance of a predictor when fitted on the full model, divided by the variance when fitted on its own. Dropping correlated columns might lead to less collinearity.
+
+## Evaluating models
+The theory behind evaluating model performance. Cross validation.
+
+### Evaluation metrics
+Statistical methods, RMSE...

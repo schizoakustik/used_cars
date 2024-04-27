@@ -1,1 +1,8 @@
 # Conclusions
+The question was, what factors are important when deciding the price of a used car?
+
+The variables that made it into the final model were not all statistically significant if you look at every single car make as a predictor, but some car makes did have an impact on the price.
+
+Days in traffic and horsepower were the numerical variables mostly correlated with price.
+
+About 80% of the variance was explained by the model. There might be some relationships not found, but also some missing predictors that probably would have made a difference, not least the new price, and a textual analysis of the description.

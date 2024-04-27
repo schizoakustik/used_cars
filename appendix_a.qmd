@@ -1,0 +1,206 @@
+# Appendix A {.unnumbered} 
+## Scraper code
+This is the code used for scraping the data from Blocket. Placeholders are substituted for the actual URL:s used.
+
+``` {r}
+#| label: setup
+#| eval: false
+
+library(rvest)
+library(httr)
+library(arrow)
+library(knitr)
+library(jsonlite)
+library(stringr)
+
+get_values <- function(l) {
+  unlist(l, use.names = FALSE)
+}
+
+parse_price <- function(c) {
+  c |> 
+  gsub(pattern = "\\D+", replacement = "") |> 
+  parse_number()
+}
+```
+
+``` {r}
+#| label: id_scraper
+#| eval: false
+
+url <- "url"
+
+cont <- GET(
+  url,
+  add_headers(
+    Authorization = paste0("Bearer ", auth)
+  )
+) |> content(as = "parsed")
+
+# A quick hack to format the data in an R friendly way
+data <- cont$cars |> toJSON() |> fromJSON()
+
+data$car$location |> View()
+
+car_data <- tibble(
+  id = data$dealId |> get_values(), 
+  fuel = data$car$fuel |> get_values(),
+  gearbox = data$car$gearbox |> get_values(),
+  regdate = data$car$regDate |> get_values(),
+  mileage = data$car$mileage |> get_values(),
+  price = data$price$amount |> get_values() |> parse_price()
+    )
+```
+
+``` {r}
+#| label: page_loop
+#| eval: false
+
+for (page in 1:cont$pages) {
+  cont <- GET(
+    paste0(url, page),
+    add_headers(
+      Authorization = paste0("Bearer ", auth)
+    )
+  ) |> content(as = "parsed")
+
+  data <- cont$cars |> toJSON() |> fromJSON()
+
+  page_data <- tibble(
+    id = data$dealId |> get_values(), 
+    fuel = data$car$fuel |> get_values(),
+    gearbox = data$car$gearbox |> get_values(),
+    regdate = data$car$regDate |> get_values(),
+    mileage = data$car$mileage |> get_values(),
+    price = data$price$amount |> get_values() |> 
+      parse_price()
+    )
+  car_data <- bind_rows(car_data, page_data)
+  Sys.sleep(.25)
+}
+
+```
+
+
+```{r}
+#| label: remove-duplicates
+#| eval: false
+
+car_data <- car_data[!duplicated(car_data$id), ]
+ids <- car_data$id
+```
+``` {r}
+#| label: data-scraper
+#| cache: true
+#| eval: false
+
+auth <- "authetication token"
+
+add_car <- function(id) {
+  url <- paste0("url", id)
+  resp <- GET(
+    url,
+    add_headers(
+      Authorization = paste0("Bearer ", auth)
+    )
+  )
+  stopifnot(resp$status_code == 200)
+  parsed <- content(resp, as = "parsed")
+  ad_data <- parsed$data |> toJSON() |> fromJSON()
+  groups <- ad_data$parameter_groups
+  ad_df <- tibble(
+    Id = ad_data$ad_id,
+    Märke = ifelse(
+      "cx_make" %in% groups$parameters[[2]]$id, 
+        filter(
+          groups$parameters[[2]], 
+          id == "cx_make")$value[[1]],
+          NA),
+    Modell = ifelse(
+        "cx_model" %in% groups$parameters[[2]]$id, 
+        filter(
+            groups$parameters[[2]], 
+            id == "cx_model")$value[[1]],
+        NA),
+    Bränsle = ifelse(
+      "fuel" %in% groups$parameters[[1]]$id, 
+      filter(
+        groups$parameters[[1]], 
+        id == "fuel")$value[[1]],
+      NA),
+    Växellåda = ifelse(
+      "gearbox" %in% groups$parameters[[1]]$id, 
+      filter(
+        groups$parameters[[1]], 
+        id == "gearbox")$value[[1]],
+      NA),
+    Miltal = ifelse(
+      "mileage" %in% groups$parameters[[1]]$id, 
+      filter(
+        groups$parameters[[1]], 
+        id == "mileage")$value[[1]],
+      NA),
+    Modellår = ifelse(
+      "regdate" %in% groups$parameters[[1]]$id, 
+      filter(
+        groups$parameters[[1]], 
+        id == "regdate")$value[[1]],
+      NA),
+    Biltyp = ifelse(
+      "car_chassis_type" %in% groups$parameters[[2]]$id, 
+      filter(
+        groups$parameters[[2]], 
+        id == "car_chassis_type")$value[[1]],
+      NA),
+    Drivning = ifelse(
+      "cx_drive_wheels" %in% groups$parameters[[2]]$id, 
+      filter(
+        groups$parameters[[2]], 
+        id == "cx_drive_wheels")$value[[1]],
+      NA),
+    HK = ifelse(
+      "cx_engine_power" %in% groups$parameters[[2]]$id, 
+      filter(
+        groups$parameters[[2]], 
+        id == "cx_engine_power")$value[[1]],
+      NA),
+    Färg = ifelse(
+      "cx_color" %in% groups$parameters[[2]]$id, 
+      filter(
+        groups$parameters[[2]], 
+        id == "cx_color")$value[[1]],
+      NA),
+    Motorstorlek = ifelse(
+      "cx_engine_size" %in% groups$parameters[[2]]$id, 
+      filter(
+        groups$parameters[[2]], 
+        id == "cx_engine_size")$value[[1]],
+      NA),
+    `Datum i trafik` = ifelse(
+      "cx_first_time_in_traffic" %in% groups$parameters[[2]]$id, 
+      filter(
+        groups$parameters[[2]], 
+        id == "cx_first_time_in_traffic")$value[[1]],
+      NA),
+    Region = ifelse(
+      "r" %in% ad_data$location$query_key, 
+      filter(a
+        d_data$location, 
+        query_key == "r")$name[[1]],
+      NA),
+    Pris = ad_data$price$value
+    )
+    ad_df
+}
+
+car_ads_data <- add_car(ids[1])
+
+ids
+
+for (id in ids[-(1:3540)]) {
+  car_ads_data <- bind_rows(car_ads_data, add_car(id))
+  # Wait a bit for next request
+  Sys.sleep(.25) 
+}
+```
+

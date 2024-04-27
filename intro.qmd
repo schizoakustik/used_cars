@@ -1,10 +1,16 @@
 # Introduction
+According to the swedish traffic analysis agency *Trafikanalys*, [@trafikanalys], the number of newly registered private cars in Sweden in March 2024 declined by 21 percent compared to the same period last year. 
+
+It might be interesting then, to look at the market for used cars. The online market place [Blocket](https://blocket.se) is a popular place to buy and sell most anything, cars included.
+
+What factors are important when deciding the price of a used car? Using data from Blocket, I will try to answer that question.
 
 ## Tasks and research questions
+To answer the question above, the following steps will be taken:
 
-* Fit a regression model to predict the price of a used car given certain features
-  * Collect data on used cars for sale
-* Which features, if any, contribute to the predicted price?
-  * Using statistical methods and domain research, select and possibly transform the most significant features in the data set
-* Using cross validation, fit and evaluate a number of models and select the best performing model.
-* Create a simple application to enter some data about a car and predict the price. (If there is time.)
+* Collect data on used cars for sale.
+* Fit a linear regression model to predict the price of used cars.
+* Using statistical methods, try to answer the question:
+  * Which features, if any, contribute to the predicted price?
+
+Although a linear regression model can be used to predict values from unseen data, the aim of this study is not to create the best performing model, but to create a model that performs well enough to be able to make conclusions when doing statistical inference.

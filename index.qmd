@@ -1,3 +1,3 @@
 # Abstract {.unnumbered}
 
-This is were I put my abstract.
+Some 9000 ads for used cars were scraped from the online market place Blocket and used to fit a linear regression models to explore which, if any, of the features affected the price. The final model had an $R^2$ statistic of about 0.8, and the number of days in traffic, the amount of horsepower, and some car makes seemed to have the highest impact on the price.

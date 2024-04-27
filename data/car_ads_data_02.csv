@@ -1,4 +1,4 @@
-"id"         ,"make"         ,"model"             ,"fuel"             ,"gearbox" ,"mileage"  ,"year" ,"type"      ,"drive"       ,"hp"  ,"color"   ,"motorsize" ,"first_in_traffic" ,"region"         ,"price"
+"id"         ,"make"         ,"model"             ,"fuel"             ,"transmission" ,"mileage"  ,"year" ,"type"      ,"drive"       ,"hp"  ,"color"   ,"motorsize" ,"first_in_traffic" ,"region"         ,"price"
 "1400677807" ,"Toyota"        ,"C-HR"               ,"Miljöbränsle/Hybrid" ,"Automat"   ,"2 300"   ,"2022"     ,"SUV"         ,"Tvåhjulsdriven" ,"123" ,"Grå"    ,"1798"         ,"2022-11-30"     ,"Stockholm"      ,299000
 "1400612907" ,"Renault"       ,"Grand Scénic"       ,"Diesel"              ,"Automat"   ,"15 200"  ,"2017"     ,"Familjebuss" ,"Tvåhjulsdriven" ,"111" ,NA       ,"1461"         ,"2017-03-30"     ,"Älvsborg"       ,145000
 "1400677013" ,"Ford"          ,"C-Max"              ,"Diesel"              ,"Manuell"   ,"22 570"  ,"2012"     ,"Familjebuss" ,"Tvåhjulsdriven" ,"116" ,"Vit"    ,"1560"         ,"2012-06-29"     ,"Skåne"          ,46000

@@ -16,8 +16,12 @@ library(tidymodels)
 
 The data behind this analysis was scraped from the swedish site [Blocket](https://blocket.se) which is a marketplace for individuals and businesses. 
 
+Data regarding the number of cars in traffic in Sweden was also collected from the swedish statistical agency *SCB* via their API.
+
+The code used to collect the data can be found in the appendixes.
+
 ### First data filtering step
-The data scraped was filtered by a number of parameters set beforehand:
+The car ads data scraped was filtered by a number of parameters set beforehand:
 
 * The price range was between 20 000 and 500 000 SEK
 * No cars from before the year 2000
@@ -62,7 +66,6 @@ labs(title = "Distribution of prices", caption = "Source: blocket.se")
 
 The year 2000 was chosen somewhat arbitrarily. The goal was to have a mix of newer and older cars in the data set, but not too old.
 
-
 ## Data preprocessing {#sec-preprocess}
 The data is imported and preprocessed in a pipeline. The comments in the code should be explanatory.
 ```{r}
@@ -95,12 +98,29 @@ df_prep <- df |>
   mutate(mileage = str_replace_all(mileage, "\\D", "")) |>
   unite(make_model, make:model, sep= " ", remove = FALSE) |>
   relocate(make_model, .before = fuel) |>
-  mutate(across(c(model, make_model, fuel, gearbox, type, drive, color, region), as.factor)) |>
-  mutate(across(c(year, mileage, hp, motorsize, price), as.integer)) |>
+  mutate(across(c(
+      model, 
+      make_model, 
+      fuel, 
+      transmission, 
+      type, 
+      drive, 
+      color, 
+      region), 
+    as.factor)) |>
+  mutate(across(c(
+      year, 
+      mileage, 
+      hp, 
+      motorsize, 
+      price), 
+    as.integer)) |>
   mutate(first_in_traffic = as.Date(first_in_traffic)) |>
   mutate(age = year(Sys.Date())-year) |>
   dplyr::filter(year(first_in_traffic) >= 1999) |>
-  mutate(days_in_traffic = as.integer(Sys.Date() - first_in_traffic), miles_per_day = mileage / days_in_traffic) |>
+  mutate(
+    days_in_traffic = as.integer(Sys.Date() - first_in_traffic), 
+    miles_per_day = mileage / days_in_traffic) |>
   as_tibble()
 
 # Change make to "Other" for observations < features
@@ -116,6 +136,37 @@ df_prep <- rows_update(
 df_prep <- df_prep |> mutate(make = as.factor(make))
 ```
 
+Some new columns are created: `make_model` is a concatenation of the `make` and `model` columns. Since each model only belongs to a certain make, it would not make sense to treat them as two independent variables.
+
+`days_in_traffic` is the number of days passed since the car was first taken into traffic, and `miles_per_day` is the `mileage` divided by that number. I thought it interesting to explore whether transformations such as those would turn out to be good predictors.
+
+### The response variable
+The distribution of the response variable, `price`, is right skewed. In the final model, a log transform is applied to the column to better approximate the normal distribution.
+
+```{r}
+#| label: fig-price-dist
+#| fig-cap: "The distribution of the response variable `price`"
+#| fig-subcap:
+#|  - "No transformation"
+#|  - "Log transformation"
+#| layout-ncol: 2
+#| column: page
+#| echo: false
+
+df_prep |> 
+select(price) |>
+ggplot(aes(x = price)) + 
+geom_histogram()
+
+df_prep |> 
+select(price) |>
+ggplot(aes(x = price)) + 
+geom_histogram() +
+scale_x_log10()
+
+
+```
+
 ### Train/test
 Then the data is split into a training set and a test set.
 ```{r}
@@ -126,17 +177,20 @@ data_split <- initial_split(df_prep, prop = .8)
 train_data <- training(data_split)
 test_data <- testing(data_split)
 ```
-The EDA section (-@sec-eda) of the Results chapter explains the data in more detail.
+The EDA section [-@sec-eda] of the Results chapter explains the data in more detail.
 
 ## Training and evaluating models
 For training and evaluting the models, various packages from the `tidymodels` framework were used.
-`rsample` was used to split the data into training and test sets, and for creating folds for cross validation. `recipes` and `workflows` were used to create a reusable pipeline for preprocessing the data. `parsnip` was used to create the actual linear regression model.
-
-
-
-* How the data was prepared for fitting.
-* Mark, Model and Mark/Model?
-* Motor size does not make sense for electric cars. We need to decide whether to drop the column, or drop the electric cars. Start by looking at a model with the electric cars dropped to see if the motor size is significant for the remaining observations.
+`rsample` was used to split the data into training and test sets, and for creating folds for cross validation. `parsnip` was used to for augmenting the data with predictions and metrics.
 
 ### Variable selection
-An interesting dilemma - can we create subsets of the mark predictors? Some of them are not significant while others are, but they describe the same aspect. Can we really train a final model using only a subset of marks? How will that affect predictions?
+
+My initial question was which features, if any, have an effect of the price of a used car. The process of *variable selection* then becomes more than just a means to create the best performing model, it is in a way the actual research.
+
+Several linear regression models were fitted with different combinations of predictors, and the adjusted $R^2$ values were noted.
+
+### Model evaluation
+
+After deciding on which variables to use, the model was fitted on the entire training set, and evaluated on the test set. 
+
+I also predicted the prices of a number of cars that were added to Blocket after the scraping was done. This was done manually and the number of tests were not large enough to do any meaningful evaluation of the model.

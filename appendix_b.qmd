@@ -1,0 +1,46 @@
+# Appendix B {.unnumbered}
+## SCB API code
+This is the code used for getting the SCB data.
+
+```{r}
+#| label: scb-data
+#| eval: false
+
+library(pxweb)
+library(tidyverse)
+
+url <- 
+  "https://api.scb.se/OV0104/v1/doris/sv/ssd/START/TK/TK1001/TK1001A/PersBilarA"
+
+pxweb_query_list <- 
+  list("Region"=c(
+    "01","03","04","05","06","07","08","09",
+    "10","12","13","14","17","18","19",
+    "20","21","22","23","24","25"),
+    "Agarkategori"=c("000","060"),
+    "ContentsCode"=c("TK1001AB"),
+    "Tid"=c("2023"))
+px_data <- 
+  pxweb_get(url = url,
+    query = pxweb_query_list)
+
+px_data_frame <- 
+  as.data.frame(
+    px_data, 
+    column.name.type = "text", 
+    variable.value.type = "text")
+
+px_wide <- 
+  px_data_frame |> 
+  tibble() |> 
+  select(-år) |> 
+  pivot_wider(
+    names_from = ägarkategori,
+    values_from = `Personbilar i trafik`) |> 
+    rename(
+      total = "totalt", 
+      per_1000 = "totalt antal bilar per 1000 invånare") |>
+  mutate(
+    region = str_replace_all(
+      region, c(" län" = "", "s$" = "")))
+```

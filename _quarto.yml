@@ -14,6 +14,8 @@ book:
     - results.qmd
     - conclusions.qmd
     - summary.qmd
+    - appendix_a.qmd
+    - appendix_b.qmd
     - references.qmd
 
 bibliography: references.bib
