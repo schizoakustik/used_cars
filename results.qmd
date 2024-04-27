@@ -192,7 +192,7 @@ print(paste("Number of make_model predictors with a p-value < 0.05: ", sig_make_
 
 #### Which car makes have a significant impact on the price?
 
-Of the 63 unique car makes in the original data set, 28 had 18 observations or fewer. As mentioned, these are grouped together under the "Other" name, which gives us 36 unique values for the `make` category. One question I wanted to ask was, which makes (if any) seem to have an impact on the asking price for the car? [Figure @fig-significant-makes] shows the estimated coefficients of the 11 car makes that have a statistically significant effect on the price.
+Of the 63 unique car makes in the original data set, 28 had 18 observations or fewer. As mentioned, these are grouped together under the "Other" name, which gives us 36 unique values for the `make` category. One question I wanted to ask was, which makes (if any) seem to have an impact on the asking price for the car? [Figure @fig-significant-makes] shows the estimated coefficients of the 16 car makes that have a statistically significant effect on the price.
 
 
 ```{r}
